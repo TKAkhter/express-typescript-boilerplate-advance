@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
-import { AuthDto, RegisterDto, ResetPasswordDto } from "@/entities/auth/auth.dto";
-import { AuthService } from "@/entities/auth/auth.services";
+import { AuthDto, RegisterDto, ResetPasswordDto } from "@/schemas/auth.dto";
+import { AuthService } from "@/services/auth.services";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
 import { StatusCodes } from "http-status-codes";

@@ -1,4 +1,4 @@
-import { UpdateUserDto, CreateUserDto } from "@/entities/user/user.dto";
+import { UpdateUserDto, CreateUserDto } from "@/schemas/user.dto";
 import { env } from "@/config/env";
 import { hash } from "bcryptjs";
 import createHttpError from "http-errors";

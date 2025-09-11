@@ -9,8 +9,8 @@ import {
   registerSchema,
   resetPasswordSchema,
   authResponseSchema,
-} from "@/entities/auth/auth.dto";
-import { AuthController } from "@/entities/auth/auth.controller";
+} from "@/schemas/auth.dto";
+import { AuthController } from "@/controllers/auth.controller";
 import { zodValidation } from "@/middlewares/zod-validation";
 import { authMiddleware } from "@/middlewares/auth-middleware";
 

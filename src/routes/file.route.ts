@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { uploadMiddleware } from "@/common/multer/multer";
-import { FileController } from "@/entities/file/file.controller";
+import { FileController } from "@/controllers/file.controller";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { updateFileSchema, uploadFileSchema } from "@/entities/file/file.dto";
+import { updateFileSchema, uploadFileSchema } from "@/schemas/file.dto";
 import { createApiResponse } from "@/common/swagger/swagger-response-builder";
 import { z } from "zod";
 import { findByQuerySchema } from "@/schemas/find-by-query";

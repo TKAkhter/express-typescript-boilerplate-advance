@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/common/swagger/swagger-response-builder";
-import { HealthController } from "@/entities/health/health.controller";
+import { HealthController } from "@/controllers/health.controller";
 import { z } from "zod";
 
 const healthRouter = Router();

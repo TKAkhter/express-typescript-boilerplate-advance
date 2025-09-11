@@ -1,13 +1,13 @@
 import { compare, hash } from "bcryptjs";
 import { logger } from "@/common/winston/winston";
-import { AuthDto, RegisterDto, ResetPasswordDto } from "@/entities/auth/auth.dto";
+import { AuthDto, RegisterDto, ResetPasswordDto } from "@/schemas/auth.dto";
 import { generateToken, verifyToken } from "@/common/jwt/jwt";
 import createHttpError from "http-errors";
 import { StatusCodes } from "http-status-codes";
-import { UserService } from "@/entities/user/user.service";
+import { UserService } from "@/services/user.service";
 import { sendMail } from "@/common/mail-sender/mail-sender";
 import { BaseRepository } from "@/common/base/base.repository";
-import { CreateUserDto, UpdateUserDto } from "@/entities/user/user.dto";
+import { CreateUserDto, UpdateUserDto } from "@/schemas/user.dto";
 import { env } from "@/config/env";
 import { createTemplate } from "@/template/create-template";
 import { User } from "@prisma/client";

@@ -1,7 +1,7 @@
 import createHttpError from "http-errors";
 import { logger } from "@/common/winston/winston";
 import { BaseService } from "@/common/base/base.services";
-import { UpdateFileDto, UploadFileDto } from "./file.dto";
+import { UpdateFileDto, UploadFileDto } from "../schemas/file.dto";
 import { File } from "@prisma/client";
 
 export class FileService extends BaseService<File, UploadFileDto, UpdateFileDto> {

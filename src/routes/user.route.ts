@@ -1,6 +1,6 @@
-import { createUserSchema, updateUserSchema } from "@/entities/user/user.dto";
+import { createUserSchema, updateUserSchema } from "@/schemas/user.dto";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { UserController } from "@/entities/user/user.controller";
+import { UserController } from "@/controllers/user.controller";
 import { zodValidation } from "@/middlewares/zod-validation";
 import { authMiddleware } from "@/middlewares/auth-middleware";
 import { createApiResponse } from "@/common/swagger/swagger-response-builder";

@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { UpdateFileDto, UploadFileDto } from "@/entities/file/file.dto";
+import { UpdateFileDto, UploadFileDto } from "@/schemas/file.dto";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
 import { saveFileToDisk } from "@/common/multer/save-file-to-disk";
@@ -8,7 +8,7 @@ import { deleteFileFromDisk } from "@/common/multer/delete-file-from-disk";
 import { BaseController } from "@/common/base/base.controller";
 import { createResponse } from "@/utils/create-response";
 import { StatusCodes } from "http-status-codes";
-import { FileService } from "@/entities/file/file.service";
+import { FileService } from "@/services/file.service";
 import { File } from "@prisma/client";
 import { prismaInstance } from "@/config/prisma/prisma";
 import _ from "lodash";

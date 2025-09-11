@@ -1,7 +1,7 @@
 import app from "@/app";
 import { env } from "@/config/env";
 import { logger } from "@/common/winston/winston";
-import { checkRedis } from "@/entities/health/health.helper";
+import { checkRedis } from "@/helpers/health.helper";
 import { connectPrisma } from "@/config/prisma/prisma";
 import { RedisClient } from "@/config/redis/redis";
 

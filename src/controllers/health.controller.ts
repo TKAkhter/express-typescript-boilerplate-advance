@@ -1,11 +1,7 @@
 import { NextFunction, Response } from "express";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
-import {
-  checkRedis,
-  createHealthCheckResponse,
-  formatMemoryUsage,
-} from "@/entities/health/health.helper";
+import { checkRedis, createHealthCheckResponse, formatMemoryUsage } from "@/helpers/health.helper";
 import { StatusCodes } from "http-status-codes";
 import fs from "fs";
 import { env } from "@/config/env";

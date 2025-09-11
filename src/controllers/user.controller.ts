@@ -1,14 +1,14 @@
 import { NextFunction, Response } from "express";
-import { UserService } from "@/entities/user/user.service";
+import { UserService } from "@/services/user.service";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
 import { createResponse } from "@/utils/create-response";
 import { BaseController } from "@/common/base/base.controller";
-import { CreateUserDto, UpdateUserDto } from "@/entities/user/user.dto";
+import { CreateUserDto, UpdateUserDto } from "@/schemas/user.dto";
 import { File, User } from "@prisma/client";
 import { prismaInstance } from "@/config/prisma/prisma";
-import { FileService } from "../file/file.service";
+import { FileService } from "../services/file.service";
 import { deleteFileFromDisk } from "@/common/multer/delete-file-from-disk";
 
 const prisma = prismaInstance();
