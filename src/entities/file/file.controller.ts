@@ -9,7 +9,7 @@ import { BaseController } from "@/common/base/base.controller";
 import { createResponse } from "@/utils/create-response";
 import { StatusCodes } from "http-status-codes";
 import { FileService } from "@/entities/file/file.service";
-import { file as File } from "@prisma/client";
+import { File } from "@prisma/client";
 import { prismaInstance } from "@/config/prisma/prisma";
 import _ from "lodash";
 

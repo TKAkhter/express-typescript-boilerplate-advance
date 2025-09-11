@@ -5,7 +5,7 @@ import createHttpError from "http-errors";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "@/common/winston/winston";
 import { BaseService } from "@/common/base/base.services";
-import { user as User } from "@prisma/client";
+import { User } from "@prisma/client";
 
 export class UserService extends BaseService<User, CreateUserDto, UpdateUserDto> {
   private collectionNameService: string;

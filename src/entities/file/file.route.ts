@@ -5,9 +5,10 @@ import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { updateFileSchema, uploadFileSchema } from "@/entities/file/file.dto";
 import { createApiResponse } from "@/common/swagger/swagger-response-builder";
 import { z } from "zod";
-import { authMiddleware, zodValidation } from "@/middlewares";
 import { findByQuerySchema } from "@/schemas/find-by-query";
-import { fileSchema } from "@/generated/zod";
+import { FileSchema } from "@/generated/zod";
+import { zodValidation } from "@/middlewares/zod-validation";
+import { authMiddleware } from "@/middlewares/auth-middleware";
 
 const fileRouter = Router();
 fileRouter.use(authMiddleware);
@@ -18,14 +19,14 @@ const ROUTE = `/${TAG.toLowerCase()}`;
 export const fileRegistry = new OpenAPIRegistry();
 const fileController = new FileController();
 
-fileRegistry.register(TAG, fileSchema);
+fileRegistry.register(TAG, FileSchema);
 
 fileRegistry.registerPath({
   method: "get",
   path: ROUTE,
   summary: `Get all ${TAG}`,
   tags: [TAG],
-  responses: createApiResponse(z.array(fileSchema), "Success"),
+  responses: createApiResponse(z.array(FileSchema), "Success"),
 });
 fileRouter.get("/", fileController.getAll);
 
@@ -39,7 +40,7 @@ fileRegistry.registerPath({
   request: {
     params: z.object({ id: z.string() }),
   },
-  responses: createApiResponse(fileSchema, "Success"),
+  responses: createApiResponse(FileSchema, "Success"),
 });
 fileRouter.get("/:id", fileController.getById);
 
@@ -53,7 +54,7 @@ fileRegistry.registerPath({
   request: {
     params: z.object({ userId: z.string() }),
   },
-  responses: createApiResponse(fileSchema, "Success"),
+  responses: createApiResponse(FileSchema, "Success"),
 });
 fileRouter.get("/user/:userId", fileController.getByUser);
 

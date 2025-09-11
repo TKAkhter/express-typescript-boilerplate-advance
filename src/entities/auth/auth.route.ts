@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { authMiddleware, zodValidation } from "@/middlewares";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/common/swagger/swagger-response-builder";
 import {
@@ -12,6 +11,8 @@ import {
   authResponseSchema,
 } from "@/entities/auth/auth.dto";
 import { AuthController } from "@/entities/auth/auth.controller";
+import { zodValidation } from "@/middlewares/zod-validation";
+import { authMiddleware } from "@/middlewares/auth-middleware";
 
 const authRouter = Router();
 

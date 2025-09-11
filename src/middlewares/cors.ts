@@ -31,5 +31,3 @@ export const config = {
 
 // Initialize the CORS middleware with the configured settings
 export const cors = corsLibrary(config);
-
-export default { cors, config };

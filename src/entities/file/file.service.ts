@@ -2,7 +2,7 @@ import createHttpError from "http-errors";
 import { logger } from "@/common/winston/winston";
 import { BaseService } from "@/common/base/base.services";
 import { UpdateFileDto, UploadFileDto } from "./file.dto";
-import { file as File } from "@prisma/client";
+import { File } from "@prisma/client";
 
 export class FileService extends BaseService<File, UploadFileDto, UpdateFileDto> {
   private collectionNameService: string;

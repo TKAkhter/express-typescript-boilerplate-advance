@@ -4,7 +4,7 @@ import app from "../src/app";
 import { RedisClient } from "../src/config/redis/redis";
 import { logger } from "../src/common/winston/winston";
 import { loadTestData } from "./test.helper";
-import { user as User, file as File } from "@prisma/client";
+import { User, File } from "@prisma/client";
 
 const ROUTE = "/api/file";
 

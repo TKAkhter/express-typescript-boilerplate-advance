@@ -6,7 +6,7 @@ import fs from "fs";
 import colors from "colors/safe";
 import "winston-mongodb";
 
-const isWinstonEnabled = env.ENABLE_WINSTON === "1";
+const isWinstonEnabled = env.ENABLE_WINSTON;
 const logsDirectory = env.LOGS_DIRECTORY;
 const logsType = env.LOGS_TYPE;
 const timeZone = env.TZ;
@@ -129,31 +129,39 @@ export const winstonLogger: Logger = createLogger({
 
 // Export logger functions with fallback to console logs if disabled
 export const logger = {
-  // eslint-disable-next-line no-extra-parens
-  info: (message: string, metadata?: Record<string, unknown>) =>
-    isWinstonEnabled
+  // Info: (message: string, metadata?: Record<string, unknown>) =>
+  //   IsWinstonEnabled
+  //     ? winstonLogger.info(message, metadata)
+  //     : console.log(colors.green(message), metadata ?? ""),
+  info: (message: string, metadata?: Record<string, unknown>) => {
+    return isWinstonEnabled
       ? winstonLogger.info(message, metadata)
-      : console.log(colors.green(message), metadata ?? ""),
-  // eslint-disable-next-line no-extra-parens
-  debug: (message: string, metadata?: Record<string, unknown>) =>
-    isWinstonEnabled
+      : console.log(colors.green(message), metadata ?? "");
+  },
+
+  debug: (message: string, metadata?: Record<string, unknown>) => {
+    return isWinstonEnabled
       ? winstonLogger.debug(message, metadata)
-      : console.log(colors.magenta(message), metadata ?? ""),
-  // eslint-disable-next-line no-extra-parens
-  warn: (message: string, metadata?: Record<string, unknown>) =>
-    isWinstonEnabled
+      : console.log(colors.magenta(message), metadata ?? "");
+  },
+
+  warn: (message: string, metadata?: Record<string, unknown>) => {
+    return isWinstonEnabled
       ? winstonLogger.warn(message, metadata)
-      : console.log(colors.yellow(message), metadata ?? ""),
-  // eslint-disable-next-line no-extra-parens
-  http: (message: string, metadata?: Record<string, unknown>) =>
-    isWinstonEnabled
+      : console.log(colors.yellow(message), metadata ?? "");
+  },
+
+  http: (message: string, metadata?: Record<string, unknown>) => {
+    return isWinstonEnabled
       ? winstonLogger.http(message, metadata)
-      : console.log(colors.blue(message), metadata ?? ""),
-  // eslint-disable-next-line no-extra-parens
-  error: (message: string, metadata?: Record<string, unknown>) =>
-    isWinstonEnabled
+      : console.log(colors.blue(message), metadata ?? "");
+  },
+
+  error: (message: string, metadata?: Record<string, unknown>) => {
+    return isWinstonEnabled
       ? winstonLogger.error(message, metadata)
-      : console.log(colors.red(message), formatConsoleMetaData(metadata) ?? ""),
+      : console.log(colors.red(message), formatConsoleMetaData(metadata) ?? "");
+  },
 };
 
 export const morganStream = {

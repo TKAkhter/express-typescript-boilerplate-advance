@@ -1,4 +1,4 @@
-import { userSchema } from "@/generated/zod";
+import { UserSchema } from "@/generated/zod";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
@@ -45,7 +45,7 @@ export const loginSchema = z.object({
 });
 
 export const authResponseSchema = z.object({
-  user: userSchema,
+  user: UserSchema,
   token: z.string(),
 });
 

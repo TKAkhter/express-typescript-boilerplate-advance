@@ -94,7 +94,7 @@ export const errorMiddleware = (
 
   logger.error(errorPayload.message, errorPayload);
 
-  if (env.ENABLE_WINSTON !== "1") {
+  if (env.ENABLE_WINSTON) {
     const errorLogs = {
       level: "error",
       message,

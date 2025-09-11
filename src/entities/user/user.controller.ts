@@ -6,7 +6,7 @@ import { CustomRequest } from "@/types/request";
 import { createResponse } from "@/utils/create-response";
 import { BaseController } from "@/common/base/base.controller";
 import { CreateUserDto, UpdateUserDto } from "@/entities/user/user.dto";
-import { file as File, user as User } from "@prisma/client";
+import { File, User } from "@prisma/client";
 import { prismaInstance } from "@/config/prisma/prisma";
 import { FileService } from "../file/file.service";
 import { deleteFileFromDisk } from "@/common/multer/delete-file-from-disk";

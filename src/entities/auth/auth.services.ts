@@ -10,7 +10,7 @@ import { BaseRepository } from "@/common/base/base.repository";
 import { CreateUserDto, UpdateUserDto } from "@/entities/user/user.dto";
 import { env } from "@/config/env";
 import { createTemplate } from "@/template/create-template";
-import { user as User } from "@prisma/client";
+import { User } from "@prisma/client";
 
 export class AuthService {
   private collectionName: string;

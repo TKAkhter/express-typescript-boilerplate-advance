@@ -23,25 +23,63 @@ generator zod {
 
 datasource db {
   provider = "mongodb"
-  url      = env("MONGODB_URI")
+  url      = env("DATABASE_URI")
 }
 
-model user {
+model User {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String?
-  email       String
+  email       String    @unique
   password    String?
-  resetToken  String?
-  createdAt   DateTime? @default(now())
-  updatedAt   DateTime? @updatedAt
+  role        Role      @relation(fields: [roleId], references: [id])
+  roleId      String    @db.ObjectId
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  tenantId    String    @db.ObjectId
   phoneNumber String?
   bio         String?
-  file        file[]
+  resetToken  String?
+  file        File[]
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
-model file {
+model Tenant {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+}
+
+model Role {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  name         String       @unique
+  permissions  Permission[]
+  users        User[]
+  permissionId String?      @db.ObjectId
+}
+
+model Permission {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  code   String  @unique
+  name   String
+  role   Role?   @relation(fields: [roleId], references: [id])
+  roleId String? @db.ObjectId
+}
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId  String?
+  userId    String?
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+}
+
+model File {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  user      user?     @relation(fields: [userId], references: [id])
+  user      User?     @relation(fields: [userId], references: [id])
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
   name      String?
@@ -52,7 +90,7 @@ model file {
   userId    String?   @db.ObjectId
 }
 
-model errorLogs {
+model ErrorLogs {
   id         String    @id @default(auto()) @map("_id") @db.ObjectId
   status     String?
   message    String?

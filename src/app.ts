@@ -1,4 +1,5 @@
-import { errorMiddleware, cors } from "@/middlewares";
+import { cors } from "./middlewares/cors";
+import { errorMiddleware } from "./middlewares/error-middleware";
 import express, { NextFunction, Request, Response } from "express";
 import { apiRoutes } from "@/routes/routes";
 import { env } from "@/config/env";
@@ -38,7 +39,7 @@ logger.info("Rate limiting middleware created");
 app.use(cookieParser());
 logger.info("Cookie parser middleware applied");
 
-if (env.ENABLE_WINSTON === "1") {
+if (env.ENABLE_WINSTON) {
   app.use(morgan("dev", { stream: morganStream }));
 } else {
   app.use(morgan("dev"));
