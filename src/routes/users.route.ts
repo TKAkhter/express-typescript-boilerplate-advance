@@ -1,6 +1,6 @@
-import { createUserSchema, updateUserSchema } from "@/schemas/user.dto";
+import { createUsersSchema, updateUsersSchema } from "@/schemas/users.dto";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { UserController } from "@/controllers/user.controller";
+import { UserController } from "@/controllers/users.controller";
 import { zodValidation } from "@/middlewares/zod-validation";
 import { authMiddleware } from "@/middlewares/auth-middleware";
 import { createApiResponse } from "@/common/swagger/swagger-response-builder";
@@ -9,25 +9,25 @@ import { findByQuerySchema } from "@/schemas/find-by-query";
 import { Router } from "express";
 import { importFileSchema } from "@/schemas/import-file";
 import { uploadImportMiddleware } from "@/common/multer/multer";
-import { UserSchema } from "@/generated/zod";
+import { UsersSchema } from "@/generated/zod";
 
 const userRouter = Router();
 userRouter.use(authMiddleware);
 
-const TAG = "User";
+const TAG = "Users";
 const ROUTE = `/${TAG.toLowerCase()}`;
 
 export const userRegistry = new OpenAPIRegistry();
 const userController = new UserController();
 
-userRegistry.register(TAG, UserSchema);
+userRegistry.register(TAG, UsersSchema);
 
 userRegistry.registerPath({
   method: "get",
   path: ROUTE,
   summary: `Get all ${TAG}`,
   tags: [TAG],
-  responses: createApiResponse(z.array(UserSchema), "Success"),
+  responses: createApiResponse(z.array(UsersSchema), "Success"),
 });
 userRouter.get("/", userController.getAll);
 
@@ -68,7 +68,7 @@ userRegistry.registerPath({
   request: {
     params: z.object({ id: z.string() }),
   },
-  responses: createApiResponse(UserSchema, "Success"),
+  responses: createApiResponse(UsersSchema, "Success"),
 });
 userRouter.get("/:id", userController.getById);
 
@@ -82,7 +82,7 @@ userRegistry.registerPath({
   request: {
     params: z.object({ email: z.string() }),
   },
-  responses: createApiResponse(UserSchema, "Success"),
+  responses: createApiResponse(UsersSchema, "Success"),
 });
 userRouter.get("/email/:email", userController.getByEmail);
 
@@ -111,12 +111,12 @@ userRegistry.registerPath({
   summary: `Create ${TAG}`,
   request: {
     body: {
-      content: { "application/json": { schema: createUserSchema } },
+      content: { "application/json": { schema: createUsersSchema } },
     },
   },
-  responses: createApiResponse(createUserSchema, `${TAG} Created Successfully`),
+  responses: createApiResponse(createUsersSchema, `${TAG} Created Successfully`),
 });
-userRouter.post("/", zodValidation(createUserSchema), userController.create);
+userRouter.post("/", zodValidation(createUsersSchema), userController.create);
 
 //====================================================================================================
 
@@ -128,12 +128,12 @@ userRegistry.registerPath({
   request: {
     params: z.object({ id: z.string() }),
     body: {
-      content: { "application/json": { schema: updateUserSchema } },
+      content: { "application/json": { schema: updateUsersSchema } },
     },
   },
-  responses: createApiResponse(UserSchema, `${TAG} Updated Successfully`),
+  responses: createApiResponse(UsersSchema, `${TAG} Updated Successfully`),
 });
-userRouter.put("/:id", zodValidation(updateUserSchema), userController.update);
+userRouter.put("/:id", zodValidation(updateUsersSchema), userController.update);
 
 //====================================================================================================
 

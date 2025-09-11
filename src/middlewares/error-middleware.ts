@@ -94,11 +94,11 @@ export const errorMiddleware = (
 
   logger.error(errorPayload.message, errorPayload);
 
-  if (env.ENABLE_WINSTON) {
+  if (!env.ENABLE_WINSTON) {
     const errorLogs = {
-      level: "error",
+      ...errorPayload,
       message,
-      metadata: errorPayload,
+      status: String(errorPayload.status),
     };
 
     prisma.errorLogs

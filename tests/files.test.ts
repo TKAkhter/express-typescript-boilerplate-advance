@@ -4,9 +4,9 @@ import app from "../src/app";
 import { RedisClient } from "../src/config/redis/redis";
 import { logger } from "../src/common/winston/winston";
 import { loadTestData } from "./test.helper";
-import { User, File } from "@prisma/client";
+import { Users, Files } from "@prisma/client";
 
-const ROUTE = "/api/file";
+const ROUTE = "/api/files";
 
 // eslint-disable-next-line no-empty-function
 jest.spyOn(logger, "info").mockImplementation(() => {});
@@ -21,8 +21,8 @@ afterAll(async () => {
 
 describe("Files API Tests", () => {
   let authToken: string;
-  let testUser: User;
-  let testFile: File;
+  let testUser: Users;
+  let testFile: Files;
 
   beforeAll(async () => {
     const { login } = loadTestData();

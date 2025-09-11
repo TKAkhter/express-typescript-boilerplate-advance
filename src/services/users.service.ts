@@ -1,13 +1,15 @@
-import { UpdateUserDto, CreateUserDto } from "@/schemas/user.dto";
+import { UpdateUsersDto, CreateUsersDto } from "@/schemas/users.dto";
 import { env } from "@/config/env";
 import { hash } from "bcryptjs";
 import createHttpError from "http-errors";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "@/common/winston/winston";
 import { BaseService } from "@/common/base/base.services";
-import { User } from "@prisma/client";
+import { PrismaClient, Users } from "@prisma/client";
 
-export class UserService extends BaseService<User, CreateUserDto, UpdateUserDto> {
+const prisma = new PrismaClient();
+
+export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsersDto> {
   private collectionNameService: string;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,7 +23,7 @@ export class UserService extends BaseService<User, CreateUserDto, UpdateUserDto>
    * @param createDto - Data for creating a new entity
    * @returns Created entity data
    */
-  create = async (createDto: CreateUserDto): Promise<User | null> => {
+  create = async (createDto: CreateUsersDto): Promise<Users | null> => {
     try {
       logger.info(
         `[${this.collectionNameService} Service] Creating ${this.collectionNameService} with email: ${createDto.email}`,
@@ -48,6 +50,20 @@ export class UserService extends BaseService<User, CreateUserDto, UpdateUserDto>
         email: createDto.email,
         password: hashedPassword,
       };
+
+      if (!createDto.tenantId) {
+        const defaultTenant = await prisma.tenants.findFirst({
+          where: { name: "Default Tenant" },
+        });
+        createDto.tenantId = defaultTenant?.id;
+      }
+
+      if (!createDto.roleId) {
+        const defaultRole = await prisma.roles.findFirst({
+          where: { name: "user" },
+        });
+        createDto.roleId = defaultRole?.id;
+      }
 
       return await this.baseRepository.create(newDto);
     } catch (error) {
@@ -78,7 +94,7 @@ export class UserService extends BaseService<User, CreateUserDto, UpdateUserDto>
    * @param updateDto - Data to update the entity with
    * @returns Updated entity data
    */
-  update = async (id: string, updateDto: UpdateUserDto): Promise<User | null> => {
+  update = async (id: string, updateDto: UpdateUsersDto): Promise<Users | null> => {
     try {
       logger.info(
         `[${this.collectionNameService} Service] Updating ${this.collectionNameService} with id: ${id}`,

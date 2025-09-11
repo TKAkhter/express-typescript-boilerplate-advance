@@ -1,4 +1,4 @@
-import { FileSchema } from "@/generated/zod";
+import { FilesSchema } from "@/generated/zod";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
@@ -20,7 +20,7 @@ const fileUploadSchema = {
     .refine((num) => num > 0, "ID must be a positive number"),
 };
 
-export const uploadFileSchema = FileSchema.omit({
+export const uploadFilesSchema = FilesSchema.omit({
   id: true,
   path: true,
   text: true,
@@ -31,7 +31,7 @@ export const uploadFileSchema = FileSchema.omit({
   .extend(fileUploadSchema)
   .partial();
 
-export const updateFileSchema = FileSchema.omit({
+export const updateFilesSchema = FilesSchema.omit({
   id: true,
   path: true,
   text: true,
@@ -42,5 +42,5 @@ export const updateFileSchema = FileSchema.omit({
   .extend(fileUploadSchema)
   .partial();
 
-export type UploadFileDto = z.infer<typeof uploadFileSchema>;
-export type UpdateFileDto = z.infer<typeof updateFileSchema>;
+export type UploadFileDto = z.infer<typeof uploadFilesSchema>;
+export type UpdateFileDto = z.infer<typeof updateFilesSchema>;
