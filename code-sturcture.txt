@@ -1,0 +1,116 @@
+Directory Structure:
+-------------------
+/ 
+├── .github/
+│   └── workflows/
+│       └── release.yml
+├── .husky/
+│   └── pre-commit
+├── .vscode/
+│   └── launch.json
+├── logs/
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.ts
+├── src/
+│   ├── common/
+│   │   ├── jwt/
+│   │   │   └── jwt.ts
+│   │   ├── mail-sender/
+│   │   │   └── mail-sender.ts
+│   │   ├── multer/
+│   │   │   ├── delete-file-from-disk.ts
+│   │   │   ├── multer.ts
+│   │   │   ├── save-file-to-disk.ts
+│   │   │   └── update-file-to-disk.ts
+│   │   ├── swagger/
+│   │   │   ├── swagger-document-generator.ts
+│   │   │   ├── swagger-response-builder.ts
+│   │   │   ├── swagger-response.ts
+│   │   │   └── swagger.router.ts
+│   │   └── winston/
+│   │       └── winston.ts
+│   ├── config/
+│   │   ├── prisma/
+│   │   │   ├── errors.prisma.ts
+│   │   │   └── prisma.ts
+│   │   ├── redis/
+│   │   │   └── redis.ts
+│   │   └── env.ts
+│   ├── constants/
+│   │   └── index.ts
+│   ├── controllers/
+│   │   ├── auth.controller.ts
+│   │   ├── base.controller.ts
+│   │   ├── files.controller.ts
+│   │   ├── health.controller.ts
+│   │   └── users.controller.ts
+│   ├── generated/
+│   │   └── zod/
+│   │       └── index.ts
+│   ├── helpers/
+│   │   └── health.helper.ts
+│   ├── middlewares/
+│   │   ├── auth-middleware.ts
+│   │   ├── cors.ts
+│   │   ├── error-middleware.ts
+│   │   └── zod-validation.ts
+│   ├── respository/
+│   │   ├── base.repository.ts
+│   │   └── users.repository.ts
+│   ├── routes/
+│   │   ├── auth.route.ts
+│   │   ├── files.route.ts
+│   │   ├── health.route.ts
+│   │   ├── routes.ts
+│   │   └── users.route.ts
+│   ├── schemas/
+│   │   ├── auth.dto.ts
+│   │   ├── files.dto.ts
+│   │   ├── find-by-query.ts
+│   │   ├── import-file.ts
+│   │   ├── query-examples.txt
+│   │   └── users.dto.ts
+│   ├── services/
+│   │   ├── auth.services.ts
+│   │   ├── base.services.ts
+│   │   ├── files.service.ts
+│   │   └── users.service.ts
+│   ├── template/
+│   │   ├── create-template.ts
+│   │   └── forgot-password.hbs
+│   ├── types/
+│   │   ├── pagination.ts
+│   │   ├── request.ts
+│   │   └── types.ts
+│   ├── utils/
+│   │   ├── create-response.ts
+│   │   ├── csv-to-json.ts
+│   │   └── utils.ts
+│   ├── .DS_Store
+│   ├── app.ts
+│   └── server.ts
+├── tests/
+│   ├── auth.validation.test.ts
+│   ├── files.test.ts
+│   └── test.helper.ts
+├── .env
+├── .env.example
+├── .gitignore
+├── .prettierignore
+├── .prettierrc
+├── code.txt
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── eslint.config.mjs
+├── jest.config.ts
+├── jest.setup.ts
+├── LICENSE.md
+├── nodemon.json
+├── package-lock.json
+├── package.json
+├── README.md
+├── SECURITY.md
+├── test-data.example.json
+├── test-data.json
+└── tsconfig.json
