@@ -1,6 +1,6 @@
 import createHttpError from "http-errors";
 import { logger } from "@/common/winston/winston";
-import { BaseService } from "@/common/base/base.services";
+import { BaseService } from "@/services/base.services";
 import { UpdateFileDto, UploadFileDto } from "../schemas/files.dto";
 import { Files } from "@prisma/client";
 

@@ -13,12 +13,11 @@ async function main() {
     });
   }
 
-  // Create default role if not exists
-  const defaultUserRole = await prisma.roles.upsert({
-    where: { name: "user" },
+  const defaultTenantRole = await prisma.roles.upsert({
+    where: { name: "tenant" },
     update: {},
     create: {
-      name: "user",
+      name: "tenant",
     },
   });
   const defaultAdminRole = await prisma.roles.upsert({
@@ -28,10 +27,18 @@ async function main() {
       name: "admin",
     },
   });
+  const defaultUserRole = await prisma.roles.upsert({
+    where: { name: "user" },
+    update: {},
+    create: {
+      name: "user",
+    },
+  });
 
   console.log("Default Tenant:", defaultTenant);
-  console.log("Default User Role:", defaultUserRole);
+  console.log("Default Tenant Role:", defaultTenantRole);
   console.log("Default Admin Role:", defaultAdminRole);
+  console.log("Default User Role:", defaultUserRole);
 }
 
 main()

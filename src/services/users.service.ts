@@ -4,18 +4,21 @@ import { hash } from "bcryptjs";
 import createHttpError from "http-errors";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "@/common/winston/winston";
-import { BaseService } from "@/common/base/base.services";
+import { BaseService } from "@/services/base.services";
 import { PrismaClient, Users } from "@prisma/client";
+import { UsersRepository } from "@/respository/users.repository";
 
 const prisma = new PrismaClient();
 
 export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsersDto> {
   private collectionNameService: string;
+  private usersRepository: UsersRepository;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(model: any, collectionName: string, ignoreFields?: Record<string, boolean>) {
     super(model, collectionName, ignoreFields);
     this.collectionNameService = collectionName;
+    this.usersRepository = new UsersRepository(model, collectionName, ignoreFields);
   }
 
   /**
@@ -28,7 +31,7 @@ export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsers
       logger.info(
         `[${this.collectionNameService} Service] Creating ${this.collectionNameService} with email: ${createDto.email}`,
       );
-      const data = await this.baseRepository.getByEmail(createDto.email!);
+      const data = await this.usersRepository.getByEmail(createDto.email!);
 
       if (data) {
         logger.warn(
@@ -45,7 +48,7 @@ export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsers
 
       const hashedPassword = await hash(createDto.password!, env.HASH!);
 
-      const newDto = {
+      const newDto: CreateUsersDto = {
         name: createDto.name,
         email: createDto.email,
         password: hashedPassword,
@@ -55,17 +58,17 @@ export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsers
         const defaultTenant = await prisma.tenants.findFirst({
           where: { name: "Default Tenant" },
         });
-        createDto.tenantId = defaultTenant?.id;
+        newDto.tenantId = defaultTenant?.id;
       }
 
       if (!createDto.roleId) {
         const defaultRole = await prisma.roles.findFirst({
           where: { name: "user" },
         });
-        createDto.roleId = defaultRole?.id;
+        newDto.roleId = defaultRole?.id;
       }
 
-      return await this.baseRepository.create(newDto);
+      return await this.usersRepository.create(newDto);
     } catch (error) {
       if (createHttpError.isHttpError(error)) {
         throw error;
@@ -115,7 +118,7 @@ export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsers
       }
 
       if (updateDto.email) {
-        const email = await this.baseRepository.getByEmail(updateDto.email);
+        const email = await this.usersRepository.getByEmail(updateDto.email);
         if (email) {
           logger.warn(
             `[${this.collectionNameService} Service] ${this.collectionNameService} with email ${updateDto.email} already exists`,
@@ -132,7 +135,7 @@ export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsers
 
       updateDto.updatedAt = new Date();
 
-      return await this.baseRepository.update(id, updateDto);
+      return await this.usersRepository.update(id, updateDto);
     } catch (error) {
       if (createHttpError.isHttpError(error)) {
         throw error;

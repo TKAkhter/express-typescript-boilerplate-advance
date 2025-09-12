@@ -5,17 +5,44 @@ import { env } from "@/config/env";
 import fs from "fs";
 import colors from "colors/safe";
 import "winston-mongodb";
+import _ from "lodash";
 
-const isWinstonEnabled = env.ENABLE_WINSTON;
-const logsDirectory = env.LOGS_DIRECTORY;
-const logsType = env.LOGS_TYPE;
-const timeZone = env.TZ;
-const logsFileDuration = env.LOG_FILE_DURATION;
-const mongodbURI = env.MONGODB_URI;
+const {
+  ENABLE_WINSTON,
+  LOGS_TYPE = "mongodb",
+  TZ = "UTC",
+  MONGODB_URI = "",
+  // NODE_ENV,
+  MONGODB_ERROR_COLLECTION_NAME,
+  LOGS_DIRECTORY,
+  LOG_FILE_DURATION,
+} = env;
+const isMongoDBLogEnabled = LOGS_TYPE === "mongodb";
 
-if (!fs.existsSync(logsDirectory) && isWinstonEnabled && logsType !== "mongodb") {
-  fs.mkdirSync(logsDirectory);
+// Const insertDatabaseNameIntoMongoUri = (uri: string, dbName: string): string => {
+//   Const [base, query] = uri.split("?");
+//   Return query ? `${base}${dbName}?${query}` : `${base}/${dbName}`;
+// };
+
+if (!fs.existsSync(LOGS_DIRECTORY) && ENABLE_WINSTON && !isMongoDBLogEnabled) {
+  fs.mkdirSync(LOGS_DIRECTORY);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const cleanObject = (obj: any): any => {
+  if (_.isArray(obj)) {
+    return obj.map(cleanObject).filter((v) => !_.isNil(v) && (!_.isObject(v) || !_.isEmpty(v)));
+  }
+
+  if (_.isPlainObject(obj)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mapped = _.mapValues(obj, cleanObject) as Record<string, any>;
+    // eslint-disable-next-line no-mixed-operators
+    return _.omitBy(mapped, (v) => _.isNil(v) || (_.isObject(v) && _.isEmpty(v)));
+  }
+
+  return obj;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const formatConsoleMetaData = (metadata: any) => {
@@ -23,34 +50,31 @@ const formatConsoleMetaData = (metadata: any) => {
     return "";
   }
 
-  // Extract common properties
   const { code, message, meta, name, response, details, status } = metadata;
-
-  // Use details as a fallback for missing properties in metadata
   const resolvedDetails = details || {};
 
-  return {
+  const raw = {
     details: {
       code: code || resolvedDetails.code || null,
       message: message || resolvedDetails.message || null,
       meta: { ...(meta || resolvedDetails.meta || {}) },
-      data: {
-        ...(response?.data || resolvedDetails?.data || {}),
-      },
+      data: { ...(response?.data || resolvedDetails?.data || {}) },
       status: response?.status || resolvedDetails?.status || status || null,
       statusText: response?.statusText || resolvedDetails?.statusText || null,
       name: name || resolvedDetails.name || null,
     },
   };
+
+  return cleanObject(raw);
 };
 
 // NestJS-like console log format
 const consoleFormat = format.combine(
   format.colorize({ all: true }),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  format.printf(({ level, message, timestamp, ...meta }: any) => {
-    const metadata = meta && Object.keys(meta).length ? JSON.stringify(meta, null, 2) : "";
-    return `[${colors.cyan(timestamp)} ${timeZone}] ${level}: ${meta.loggedUser ?? ""} ${message} ${metadata}`;
+  format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  format.printf(({ level, message, timestamp, ...meta }) => {
+    const metadata = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : "";
+    return `[${colors.cyan(timestamp as string)} ${TZ}] ${level}: ${meta.loggedUser ?? ""} ${message} ${metadata}`;
   }),
 );
 
@@ -59,114 +83,105 @@ const fileFormat = format.combine(
   format.json(),
 );
 
-const createMongoTransport = () =>
-  new transports.MongoDB({
-    db: mongodbURI,
-    dbName: env.NODE_ENV,
-    collection: env.MONGODB_ERROR_COLLECTION_NAME,
-    level: "error",
-    format: format.combine(
-      format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-      format.errors({ stack: true }),
-      format.json(),
-    ),
-  });
+// ==== Transports ====
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const loggerTransports: any[] = [];
 
-const createDailyRotateTransport = (level: string) =>
-  new transports.DailyRotateFile({
-    filename: `${level}-%DATE%.log`,
-    dirname: logsDirectory,
-    datePattern: "YYYY-MM-DD",
-    level,
-    zippedArchive: true,
-    maxSize: "20m",
-    maxFiles: logsFileDuration,
-    format: format.combine(
-      // eslint-disable-next-line no-extra-parens
-      format((info) => (info.level === level ? info : false))(),
-      fileFormat,
-    ),
-  });
+// ---- Console + File Transports ----
+if (ENABLE_WINSTON) {
+  loggerTransports.push(new transports.Console({ level: "debug", format: consoleFormat }));
 
-const logLevels = {
-  levels: {
-    error: 0,
-    warn: 1,
-    http: 2,
-    info: 3,
-    debug: 4,
-  },
-  colors: {
-    error: "red",
-    warn: "yellow",
-    info: "green",
-    http: "blue",
-    debug: "magenta",
-  },
-};
-
-const transportsList = [];
-if (isWinstonEnabled) {
-  transportsList.push(new transports.Console({ level: "info", format: consoleFormat }));
-  if (logsType === "mongodb") {
-    transportsList.push(createMongoTransport());
-  } else {
-    transportsList.push(createDailyRotateTransport("info"));
-    transportsList.push(createDailyRotateTransport("error"));
+  if (LOGS_TYPE !== "mongodb") {
+    loggerTransports.push(
+      new transports.DailyRotateFile({
+        filename: "info-%DATE%.log",
+        dirname: LOGS_DIRECTORY,
+        level: "info",
+        datePattern: "YYYY-MM-DD",
+        zippedArchive: true,
+        maxSize: "20m",
+        maxFiles: LOG_FILE_DURATION,
+        format: fileFormat,
+      }),
+      new transports.DailyRotateFile({
+        filename: "error-%DATE%.log",
+        dirname: LOGS_DIRECTORY,
+        level: "error",
+        datePattern: "YYYY-MM-DD",
+        zippedArchive: true,
+        maxSize: "20m",
+        maxFiles: LOG_FILE_DURATION,
+        format: fileFormat,
+      }),
+    );
   }
 }
 
+// ---- MongoDB Transports ----
+if (isMongoDBLogEnabled) {
+  loggerTransports.push(
+    new transports.MongoDB({
+      db: MONGODB_URI, //InsertDatabaseNameIntoMongoUri(MONGODB_URI, NODE_ENV as string),
+      collection: MONGODB_ERROR_COLLECTION_NAME,
+      level: "error",
+      format: fileFormat,
+    }),
+  );
+}
+
+// ==== Winston Logger ====
 export const winstonLogger: Logger = createLogger({
-  levels: logLevels.levels,
+  level: "debug",
   format: format.combine(
     format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     format.errors({ stack: true }),
     format.splat(),
-    format.align(),
   ),
-  transports: transportsList,
+  transports: loggerTransports,
+  exitOnError: false,
 });
 
-// Export logger functions with fallback to console logs if disabled
+// ==== Public Logger API ====
 export const logger = {
-  // Info: (message: string, metadata?: Record<string, unknown>) =>
-  //   IsWinstonEnabled
-  //     ? winstonLogger.info(message, metadata)
-  //     : console.log(colors.green(message), metadata ?? ""),
-  info: (message: string, metadata?: Record<string, unknown>) => {
-    return isWinstonEnabled
-      ? winstonLogger.info(message, metadata)
-      : console.log(colors.green(message), metadata ?? "");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  info: (msg: string, meta?: any) => {
+    return ENABLE_WINSTON
+      ? winstonLogger.info(msg, formatConsoleMetaData(meta))
+      : console.log(colors.green(msg), meta ? formatConsoleMetaData(meta) : "");
   },
-
-  debug: (message: string, metadata?: Record<string, unknown>) => {
-    return isWinstonEnabled
-      ? winstonLogger.debug(message, metadata)
-      : console.log(colors.magenta(message), metadata ?? "");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  debug: (msg: string, meta?: any) => {
+    return ENABLE_WINSTON
+      ? winstonLogger.debug(msg, formatConsoleMetaData(meta))
+      : console.log(colors.magenta(msg), meta ? formatConsoleMetaData(meta) : "");
   },
-
-  warn: (message: string, metadata?: Record<string, unknown>) => {
-    return isWinstonEnabled
-      ? winstonLogger.warn(message, metadata)
-      : console.log(colors.yellow(message), metadata ?? "");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  warn: (msg: string, meta?: any) => {
+    return ENABLE_WINSTON
+      ? winstonLogger.warn(msg, formatConsoleMetaData(meta))
+      : console.log(colors.yellow(msg), meta ? formatConsoleMetaData(meta) : "");
   },
-
-  http: (message: string, metadata?: Record<string, unknown>) => {
-    return isWinstonEnabled
-      ? winstonLogger.http(message, metadata)
-      : console.log(colors.blue(message), metadata ?? "");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  http: (msg: string, meta?: any) => {
+    return ENABLE_WINSTON
+      ? winstonLogger.http(msg, formatConsoleMetaData(meta))
+      : console.log(colors.blue(msg), meta ? formatConsoleMetaData(meta) : "");
   },
-
-  error: (message: string, metadata?: Record<string, unknown>) => {
-    return isWinstonEnabled
-      ? winstonLogger.error(message, metadata)
-      : console.log(colors.red(message), formatConsoleMetaData(metadata) ?? "");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: (msg: string, meta?: any) => {
+    return ENABLE_WINSTON
+      ? winstonLogger.error(msg, formatConsoleMetaData(meta))
+      : console.error(msg, meta ? formatConsoleMetaData(meta) : "");
   },
 };
 
+// ==== Morgan stream for request logging ====
 export const morganStream = {
   write: (message: string) => {
-    const statusCode = parseInt(message.split(" ")[2], 10);
+    // eslint-disable-next-line no-control-regex
+    const stripAnsi = (str: string) => str.replace(/\u001b\[[0-9;]*m/g, "");
+    const clean = stripAnsi(message);
+    const statusCode = parseInt(clean.split(" ")[2], 10);
     if (statusCode >= StatusCodes.BAD_REQUEST) {
       logger.warn(message.trim());
     } else {

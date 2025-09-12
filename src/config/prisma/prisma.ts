@@ -11,6 +11,6 @@ export const connectPrisma = async () => {
     await prisma.$connect();
   } catch (error) {
     logger.error("Error connecting to Prisma:", { error });
-    throw new Error("Error connecting to Prisma");
+    throw error;
   }
 };

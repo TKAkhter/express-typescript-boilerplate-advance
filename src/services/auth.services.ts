@@ -6,7 +6,7 @@ import createHttpError from "http-errors";
 import { StatusCodes } from "http-status-codes";
 import { UsersService } from "@/services/users.service";
 import { sendMail } from "@/common/mail-sender/mail-sender";
-import { BaseRepository } from "@/common/base/base.repository";
+import { BaseRepository } from "@/respository/base.repository";
 import { CreateUsersDto, UpdateUsersDto } from "@/schemas/users.dto";
 import { env } from "@/config/env";
 import { createTemplate } from "@/template/create-template";

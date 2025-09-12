@@ -80,22 +80,16 @@ export const UsersScalarFieldEnumSchema = z.enum([
 
 export const TenantsScalarFieldEnumSchema = z.enum(["id", "name", "createdAt", "updatedAt"]);
 
-export const RolesScalarFieldEnumSchema = z.enum([
-  "id",
-  "name",
-  "permissionId",
-  "createdAt",
-  "updatedAt",
-]);
+export const RolesScalarFieldEnumSchema = z.enum(["id", "name", "createdAt", "updatedAt"]);
 
 export const FilesScalarFieldEnumSchema = z.enum([
   "id",
+  "userId",
   "name",
   "path",
   "text",
   "tags",
   "views",
-  "userId",
   "createdAt",
   "updatedAt",
 ]);
@@ -162,7 +156,6 @@ export type Tenants = z.infer<typeof TenantsSchema>;
 export const RolesSchema = z.object({
   id: z.string(),
   name: z.string(),
-  permissionId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -175,12 +168,12 @@ export type Roles = z.infer<typeof RolesSchema>;
 
 export const FilesSchema = z.object({
   id: z.string(),
+  userId: z.string(),
   name: z.string().nullable(),
   path: z.string().nullable(),
   text: z.string().nullable(),
   tags: z.string().nullable(),
   views: z.number().nullable(),
-  userId: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

@@ -5,7 +5,7 @@ import { CustomRequest } from "@/types/request";
 import { saveFileToDisk } from "@/common/multer/save-file-to-disk";
 import { updateFileToDisk } from "@/common/multer/update-file-to-disk";
 import { deleteFileFromDisk } from "@/common/multer/delete-file-from-disk";
-import { BaseController } from "@/common/base/base.controller";
+import { BaseController } from "@/controllers/base.controller";
 import { createResponse } from "@/utils/create-response";
 import { StatusCodes } from "http-status-codes";
 import { FileService } from "@/services/files.service";

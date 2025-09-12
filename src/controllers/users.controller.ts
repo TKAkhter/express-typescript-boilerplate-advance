@@ -4,7 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
 import { createResponse } from "@/utils/create-response";
-import { BaseController } from "@/common/base/base.controller";
+import { BaseController } from "@/controllers/base.controller";
 import { CreateUsersDto, UpdateUsersDto } from "@/schemas/users.dto";
 import { Files, Users } from "@prisma/client";
 import { prismaInstance } from "@/config/prisma/prisma";

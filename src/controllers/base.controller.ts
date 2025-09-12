@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { BaseService } from "@/common/base/base.services";
+import { BaseService } from "@/services/base.services";
 import { CustomRequest } from "@/types/request";
 import { logger } from "@/common/winston/winston";
 import { StatusCodes } from "http-status-codes";
