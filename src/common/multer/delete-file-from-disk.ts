@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { logger } from "@/common/winston/winston";
+import { loggedError } from "@/utils/utils";
 
 export const deleteFileFromDisk = async (fileName: string) => {
   try {
@@ -20,9 +21,8 @@ export const deleteFileFromDisk = async (fileName: string) => {
 
       logger.info(`File deleted successfully: ${filePath}`);
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    logger.warn("Error deleting file:", error);
-    throw new Error("Failed to delete the file.");
+  } catch (error) {
+    loggedError(error, "Error deleting file from disk", { fileName });
+    throw error;
   }
 };

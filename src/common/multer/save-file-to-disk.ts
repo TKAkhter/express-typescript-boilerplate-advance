@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { logger } from "@/common/winston/winston";
+import { loggedError } from "@/utils/utils";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const saveFileToDisk = async (file: any) => {
@@ -26,9 +27,8 @@ export const saveFileToDisk = async (file: any) => {
       logger.info(`File saved to: ${filePath}`);
     });
     return { name: fileName, path: filePath };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    logger.warn("Error saving file:", error);
-    throw new Error("Failed to save file.");
+  } catch (error) {
+    loggedError(error, "Error saving file to disk", { file });
+    throw error;
   }
 };

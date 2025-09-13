@@ -6,6 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import createHttpError from "http-errors";
 import { csvBufferToJson, csvToJson } from "@/utils/csv-to-json";
 import { createResponse } from "@/utils/create-response";
+import { loggedError } from "@/utils/utils";
 
 export class BaseController<T, TCreateDto, TUpdateDto> {
   public collectionName: string;
@@ -28,8 +29,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON list of entities
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getAll = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  getAll = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     try {
       logger.info(`[${this.collectionName} Controller] Fetching all ${this.collectionName}`, {
@@ -37,17 +37,9 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
       });
       const data = await this.baseService.getAll();
 
-      return res.json(createResponse({ data }));
+      res.json(createResponse({ data }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionName} Controller] Error fetching all ${this.collectionName}`,
-          {
-            error: error.message,
-            loggedUser,
-          },
-        );
-      }
+      loggedError(error, `[${this.collectionName} Controller] getAll API error`, { loggedUser });
       next(error);
     }
   };
@@ -59,8 +51,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON entity object
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getById = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  getById = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const { id } = req.params;
     try {
@@ -70,18 +61,12 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
       });
       const data = await this.baseService.getById(id);
 
-      return res.json(createResponse({ data }));
+      res.json(createResponse({ data }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionName} Controller] Error fetching ${this.collectionName} by ID`,
-          {
-            error: error.message,
-            id,
-            loggedUser,
-          },
-        );
-      }
+      loggedError(error, `[${this.collectionName} Controller] getById API error`, {
+        id,
+        loggedUser,
+      });
       next(error);
     }
   };
@@ -93,8 +78,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON entity object
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getByEmail = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  getByEmail = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const { email } = req.params;
     try {
@@ -104,18 +88,12 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
       });
       const data = await this.baseService.getByEmail(email);
 
-      return res.json(createResponse({ data }));
+      res.json(createResponse({ data }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionName} Controller] Error fetching ${this.collectionName} by email`,
-          {
-            error: error.message,
-            email,
-            loggedUser,
-          },
-        );
-      }
+      loggedError(error, `[${this.collectionName} Controller] getByEmail API error`, {
+        email,
+        loggedUser,
+      });
       next(error);
     }
   };
@@ -127,8 +105,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON result of the query
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  findByQuery = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  findByQuery = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const { paginate, orderBy, filter } = req.body;
     try {
@@ -140,17 +117,11 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
 
       const data = await this.baseService.findByQuery(queryOptions);
 
-      return res.json(createResponse({ data }));
+      res.json(createResponse({ data }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionName} Controller] Error finding ${this.collectionName} by query`,
-          {
-            error: error.message,
-            loggedUser,
-          },
-        );
-      }
+      loggedError(error, `[${this.collectionName} Controller] findByQuery API error`, {
+        loggedUser,
+      });
       next(error);
     }
   };
@@ -162,8 +133,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON created entity
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  create = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const createDto = req.body;
     try {
@@ -172,15 +142,12 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
         loggedUser,
       });
       const created = await this.baseService.create(createDto);
-      return res.json(createResponse({ data: created, status: StatusCodes.CREATED }));
+      res.json(createResponse({ data: created, status: StatusCodes.CREATED }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Controller] Error creating ${this.collectionName}`, {
-          error: error.message,
-          createDto,
-          loggedUser,
-        });
-      }
+      loggedError(error, `[${this.collectionName} Controller] create API error`, {
+        createDto,
+        loggedUser,
+      });
       next(error);
     }
   };
@@ -192,8 +159,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON updated entity
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  update = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  update = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const { id } = req.params;
     const updateDto = req.body;
@@ -204,16 +170,13 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
         loggedUser,
       });
       const updated = await this.baseService.update(id, updateDto);
-      return res.json(createResponse({ data: updated }));
+      res.json(createResponse({ data: updated }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Controller] Error updating ${this.collectionName}`, {
-          error: error.message,
-          id,
-          updateDto,
-          loggedUser,
-        });
-      }
+      loggedError(error, `[${this.collectionName} Controller] update API error`, {
+        id,
+        updateDto,
+        loggedUser,
+      });
       next(error);
     }
   };
@@ -225,8 +188,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON success message
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  delete = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const { id } = req.params;
     try {
@@ -236,15 +198,12 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
       });
       const data = await this.baseService.delete(id);
 
-      return res.json(createResponse({ data }));
+      res.json(createResponse({ data }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Controller] Error deleting ${this.collectionName}`, {
-          error: error.message,
-          id,
-          loggedUser,
-        });
-      }
+      loggedError(error, `[${this.collectionName} Controller] delete API error`, {
+        id,
+        loggedUser,
+      });
       next(error);
     }
   };
@@ -256,8 +215,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON success message
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  deleteMany = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  deleteMany = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const { ids } = req.body;
     try {
@@ -274,15 +232,12 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
       });
       const data = await this.baseService.deleteMany(ids);
 
-      return res.json(createResponse({ data }));
+      res.json(createResponse({ data }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Controller] Error deleting ${this.collectionName}`, {
-          error: error.message,
-          ids,
-          loggedUser,
-        });
-      }
+      loggedError(error, `[${this.collectionName} Controller] deleteMany API error`, {
+        ids,
+        loggedUser,
+      });
       next(error);
     }
   };
@@ -294,11 +249,10 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON created entity
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  import = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  import = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser, file } = req;
     if (!file) {
-      return next(createHttpError(StatusCodes.BAD_REQUEST, "No file uploaded."));
+      next(createHttpError(StatusCodes.BAD_REQUEST, "No file uploaded."));
     }
     try {
       logger.info(`[${this.collectionName} Controller] Importing new ${this.collectionName}`, {
@@ -314,14 +268,9 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
 
       const imported = await this.baseService.import(importEntries);
 
-      return res.json(createResponse({ data: imported }));
+      res.json(createResponse({ data: imported }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Controller] Error creating ${this.collectionName}`, {
-          error: error.message,
-          loggedUser,
-        });
-      }
+      loggedError(error, `[${this.collectionName} Controller] import API error`, { loggedUser });
       next(error);
     }
   };
@@ -333,8 +282,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
    * @param next - Next middleware function
    * @returns JSON list of entities
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  export = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  export = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     try {
       logger.info(`[${this.collectionName} Controller] Exporting ${this.collectionName}`, {
@@ -345,12 +293,7 @@ export class BaseController<T, TCreateDto, TUpdateDto> {
       res.attachment(`${this.collectionName}.csv`);
       res.status(StatusCodes.OK).send(csv);
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Controller] Error exporting ${this.collectionName}`, {
-          error: error.message,
-          loggedUser,
-        });
-      }
+      loggedError(error, `[${this.collectionName} Controller] export API error`, { loggedUser });
       next(error);
     }
   };

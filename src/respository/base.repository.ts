@@ -1,6 +1,7 @@
 import { FindByQueryDto, FindByQueryResult, ImportResult } from "@/schemas/find-by-query";
 import { logger } from "@/common/winston/winston";
 import { formatPrismaError } from "@/config/prisma/errors.prisma";
+import { loggedError } from "@/utils/utils";
 
 export class BaseRepository<T, TCreateDto, TUpdateDto> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,13 +25,10 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
       logger.info(`[${this.collectionName} Repository] Fetching all from ${this.collectionName}`);
       const getAll = await this.model.findMany({ omit: this.ignoreFields });
       return getAll;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.collectionName} Repository] Error fetching all from ${this.collectionName}`,
-        {
-          error: error.message,
-        },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -47,14 +45,11 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
         `[${this.collectionName} Repository] Fetching ${this.collectionName} with id: ${id}`,
       );
       return await this.model.findUnique({ where: { id }, omit: this.ignoreFields });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.collectionName} Repository] Error fetching ${this.collectionName} by id`,
-        {
-          id,
-          error: error.message,
-        },
+        { id },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -71,14 +66,11 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
         `[${this.collectionName} Repository] Fetching ${this.collectionName} with userId: ${userId}`,
       );
       return await this.model.findMany({ where: { userId }, omit: this.ignoreFields });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.collectionName} Repository] Error fetching ${this.collectionName} by userId`,
-        {
-          userId,
-          error: error.message,
-        },
+        { userId },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -95,14 +87,11 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
         `[${this.collectionName} Repository] Fetching ${this.collectionName} with email: ${email}`,
       );
       return await this.model.findFirst({ where: { email } });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.collectionName} Repository] Error fetching ${this.collectionName} by email`,
-        {
-          email,
-          error: error.message,
-        },
+        { email },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -120,15 +109,11 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
         `[${this.collectionName} Repository] Fetching ${this.collectionName} where ${field}: ${value}`,
       );
       return await this.model.findMany({ where: { [field]: value }, omit: this.ignoreFields });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.collectionName} Repository] Error fetching ${this.collectionName} by ${field}`,
-        {
-          field,
-          value,
-          error: error.message,
-        },
+        { field, value },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -164,12 +149,12 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
       ]);
 
       return { data, total, page, perPage, totalPages: Math.ceil(total / perPage) };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(`[${this.collectionName} Repository] Error querying ${this.collectionName}`, {
-        options,
-        error: error.message,
-      });
+    } catch (error) {
+      loggedError(
+        error,
+        `[${this.collectionName} Repository] Error querying ${this.collectionName}`,
+        { options },
+      );
       throw new Error(formatPrismaError(error));
     }
   };
@@ -186,14 +171,11 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
       );
       const created = await this.model.create({ data: createDto });
       return created;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.collectionName} Repository] Error creating entry in ${this.collectionName}`,
-        {
-          createDto,
-          error: error.message,
-        },
+        { createDto },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -211,13 +193,12 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
         `[${this.collectionName} Repository] Updating ${this.collectionName} with id: ${id}`,
       );
       return await this.model.update({ where: { id }, data: updateDto });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(`[${this.collectionName} Repository] Error updating ${this.collectionName}`, {
-        id,
-        updateDto,
-        error: error.message,
-      });
+    } catch (error) {
+      loggedError(
+        error,
+        `[${this.collectionName} Repository] Error updating ${this.collectionName}`,
+        { id, updateDto },
+      );
       throw new Error(formatPrismaError(error));
     }
   };
@@ -233,12 +214,12 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
         `[${this.collectionName} Repository] Deleting ${this.collectionName} with id: ${id}`,
       );
       return await this.model.delete({ where: { id } });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(`[${this.collectionName} Repository] Error deleting ${this.collectionName}`, {
-        id,
-        error: error.message,
-      });
+    } catch (error) {
+      loggedError(
+        error,
+        `[${this.collectionName} Repository] Error deleting ${this.collectionName}`,
+        { id },
+      );
       throw new Error(formatPrismaError(error));
     }
   };
@@ -252,14 +233,11 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
     try {
       const result = await this.model.deleteMany({ where: { id: { in: ids } } });
       return { deletedCount: result.count };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.collectionName} Repository] Error deleting multiple ${this.collectionName}`,
-        {
-          ids,
-          error: error.message,
-        },
+        { ids },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -314,15 +292,11 @@ export class BaseRepository<T, TCreateDto, TUpdateDto> {
         createdCount: createdEntities.count ?? createdEntities.length,
         skippedCount: skippedEntities.length,
       };
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.collectionName} Repository] Error importing into ${this.collectionName}`,
-        {
-          totalEntities: entities.length,
-          error: error.message,
-        },
+        { totalEntities: entities.length },
       );
       throw new Error(formatPrismaError(error));
     }

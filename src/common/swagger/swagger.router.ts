@@ -6,7 +6,7 @@ import { env } from "@/config/env";
 export const openAPIRouter: Router = express.Router();
 const openAPIDocument = generateOpenAPIDocument();
 
-if (!["testing", "production"].includes(env.NODE_ENV!)) {
+if (!["production"].includes(env.NODE_ENV!)) {
   openAPIRouter.get("/docs/swagger.json", (_req: Request, res: Response) => {
     res.setHeader("Content-Type", "application/json");
     res.send(openAPIDocument);

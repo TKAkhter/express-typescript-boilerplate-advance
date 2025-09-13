@@ -4,6 +4,7 @@ import { logger } from "@/common/winston/winston";
 import createHttpError from "http-errors";
 import { StatusCodes } from "http-status-codes";
 import { parseAsync } from "json2csv";
+import { loggedError } from "@/utils/utils";
 
 export class BaseService<T, TCreateDto, TUpdateDto> {
   private collectionName: string;
@@ -29,16 +30,8 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
       const data = await this.baseRepository.getAll();
       return data;
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error fetching all ${this.collectionName}`, {
-          error: error.message,
-        });
-        throw new Error(`Error fetching ${this.collectionName}: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionName} Service] Unknown error occurred while fetching all ${this.collectionName}`,
-      );
-      throw new Error(`Unknown error occurred while fetching ${this.collectionName}`);
+      loggedError(error, `[${this.collectionName} Service] getAll service error`);
+      throw error;
     }
   };
 
@@ -65,23 +58,8 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
 
       return data;
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionName} Service] Error fetching ${this.collectionName} by id`,
-          {
-            id,
-            error: error.message,
-          },
-        );
-        throw new Error(`Error fetching ${this.collectionName} by id: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionName} Service] Unknown error occurred while fetching ${this.collectionName} by id`,
-      );
-      throw new Error(`Unknown error occurred while fetching ${this.collectionName} by id`);
+      loggedError(error, `[${this.collectionName} Service] getById service error`, { id });
+      throw error;
     }
   };
 
@@ -106,23 +84,8 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
 
       return data;
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionName} Service] Error fetching ${this.collectionName} by email`,
-          {
-            email,
-            error: error.message,
-          },
-        );
-        throw new Error(`Error fetching ${this.collectionName} by email: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionName} Service] Unknown error occurred while fetching ${this.collectionName} by email`,
-      );
-      throw new Error(`Unknown error occurred while fetching ${this.collectionName} by email`);
+      loggedError(error, `[${this.collectionName} Service] getByEmail service error`, { email });
+      throw error;
     }
   };
 
@@ -138,11 +101,8 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
       );
       return await this.baseRepository.findByQuery(options);
     } catch (error) {
-      logger.warn(`[${this.collectionName} Service] Error querying ${this.collectionName}`, {
-        options,
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-      throw new Error(`Error querying ${this.collectionName}`);
+      loggedError(error, `[${this.collectionName} Service] findByQuery service error`, { options });
+      throw error;
     }
   };
 
@@ -156,21 +116,8 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
       logger.info(`[${this.collectionName} Service] Creating ${this.collectionName} ${createDto}`);
       return await this.baseRepository.create(createDto);
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error creating ${this.collectionName}`, {
-          createDto,
-          error: error.message,
-        });
-        throw new Error(`Error creating ${this.collectionName}: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionName} Service] Unknown error occurred while creating ${this.collectionName}`,
-      );
-      throw new Error(`Unknown error occurred while creating ${this.collectionName}`);
+      loggedError(error, `[${this.collectionName} Service] create service error`, { createDto });
+      throw error;
     }
   };
 
@@ -187,22 +134,11 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
       );
       return await this.baseRepository.update(id, updateDto);
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error updating ${this.collectionName}`, {
-          id,
-          updateDto,
-          error: error.message,
-        });
-        throw new Error(`Error updating ${this.collectionName}: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionName} Service] Unknown error occurred while updating ${this.collectionName}`,
-      );
-      throw new Error(`Unknown error occurred while updating ${this.collectionName}`);
+      loggedError(error, `[${this.collectionName} Service] update service error`, {
+        id,
+        updateDto,
+      });
+      throw error;
     }
   };
 
@@ -229,21 +165,8 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
 
       return await this.baseRepository.delete(id);
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error deleting ${this.collectionName}`, {
-          id,
-          error: error.message,
-        });
-        throw new Error(`Error deleting ${this.collectionName}: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionName} Service] Unknown error occurred while deleting ${this.collectionName}`,
-      );
-      throw new Error(`Unknown error occurred while deleting ${this.collectionName}`);
+      loggedError(error, `[${this.collectionName} Service] delete service error`, { id });
+      throw error;
     }
   };
 
@@ -253,21 +176,26 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
    * @returns Deletion result
    */
   deleteMany = async (ids: string[]): Promise<{ deletedCount: number }> => {
-    if (!Array.isArray(ids) || ids.length === 0) {
-      logger.warn(`[${this.collectionName} Service] Invalid array of ids for bulk delete`);
-      throw new Error("Invalid array of ids");
+    try {
+      if (!Array.isArray(ids) || ids.length === 0) {
+        logger.warn(`[${this.collectionName} Service] Invalid array of ids for bulk delete`);
+        throw new Error("Invalid array of ids");
+      }
+
+      const result = await this.baseRepository.deleteMany(ids);
+
+      if (result.deletedCount === 0) {
+        logger.warn(`[${this.collectionName} Service] No ${this.collectionName} found to delete`, {
+          ids,
+        });
+        throw new Error(`No ${this.collectionName} found to delete`);
+      }
+
+      return result;
+    } catch (error) {
+      loggedError(error, `[${this.collectionName} Service] deleteMany service error`, { ids });
+      throw error;
     }
-
-    const result = await this.baseRepository.deleteMany(ids);
-
-    if (result.deletedCount === 0) {
-      logger.warn(`[${this.collectionName} Service] No ${this.collectionName} found to delete`, {
-        ids,
-      });
-      throw new Error(`No ${this.collectionName} found to delete`);
-    }
-
-    return result;
   };
 
   /**
@@ -288,21 +216,8 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
 
       return imported;
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error creating ${this.collectionName}`, {
-          importDto,
-          error: error.message,
-        });
-        throw new Error(`Error creating ${this.collectionName}: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionName} Service] Unknown error occurred while creating ${this.collectionName}`,
-      );
-      throw new Error(`Unknown error occurred while creating ${this.collectionName}`);
+      loggedError(error, `[${this.collectionName} Service] import service error`, { importDto });
+      throw error;
     }
   };
 
@@ -323,16 +238,8 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
 
       return csv;
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error fetching all ${this.collectionName}`, {
-          error: error.message,
-        });
-        throw new Error(`Error fetching ${this.collectionName}: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionName} Service] Unknown error occurred while fetching all ${this.collectionName}`,
-      );
-      throw new Error(`Unknown error occurred while fetching ${this.collectionName}`);
+      loggedError(error, `[${this.collectionName} Service] export service error`);
+      throw error;
     }
   };
 }

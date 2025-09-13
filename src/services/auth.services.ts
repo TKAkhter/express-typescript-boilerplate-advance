@@ -11,6 +11,7 @@ import { CreateUsersDto, UpdateUsersDto } from "@/schemas/users.dto";
 import { env } from "@/config/env";
 import { createTemplate } from "@/template/create-template";
 import { Users } from "@prisma/client";
+import { loggedError } from "@/utils/utils";
 
 export class AuthService {
   private collectionName: string;
@@ -70,21 +71,10 @@ export class AuthService {
       });
       return { user, token };
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error during login`, {
-          error: error.message,
-          email: authData.email,
-        });
-        throw new Error(`Error while login: ${error.message}`);
-      }
-      logger.warn(`[${this.collectionName} Service] Unknown error during login`, {
+      loggedError(error, `[${this.collectionName} Service] login service error`, {
         email: authData.email,
       });
-      throw new Error("Unknown error occurred while login");
+      throw error;
     }
   };
 
@@ -112,21 +102,10 @@ export class AuthService {
       );
       return login;
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error during registration`, {
-          error: error.message,
-          email: registerDto.email,
-        });
-        throw new Error(`[${this.collectionName} Service] Error while login: ${error.message}`);
-      }
-      logger.warn(`[${this.collectionName} Service] Unknown error during registration`, {
+      loggedError(error, `[${this.collectionName} Service] register service error`, {
         email: registerDto.email,
       });
-      throw new Error(`[${this.collectionName} Service] Unknown error occurred while login`);
+      throw error;
     }
   };
 
@@ -149,17 +128,8 @@ export class AuthService {
       logger.info(`[${this.collectionName} Service] Token extended successfully`, { newToken });
       return newToken;
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error extending token`, {
-          error: error.message,
-          token,
-        });
-        throw new Error(`[${this.collectionName} Service] Error extend token: ${error.message}`);
-      }
-      logger.warn(`[${this.collectionName} Service] Unknown error while extending token`, {
-        token,
-      });
-      throw new Error(`[${this.collectionName} Service] Unknown error occurred while extend token`);
+      loggedError(error, `[${this.collectionName} Service] extendToken service error`, { token });
+      throw error;
     }
   };
 
@@ -175,15 +145,8 @@ export class AuthService {
     try {
       return { token, success: true };
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error during logout`, {
-          error: error.message,
-          token,
-        });
-        throw new Error(`Error logout: ${error.message}`);
-      }
-      logger.warn(`[${this.collectionName} Service] Unknown error during logout`, { token });
-      throw new Error("Unknown error occurred while logout");
+      loggedError(error, `[${this.collectionName} Service] logout service error`, { token });
+      throw error;
     }
   };
 
@@ -247,25 +210,10 @@ export class AuthService {
       });
       return { message: "Reset link sent. Check your inbox" };
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error during registration`, {
-          error: error.message,
-          email,
-        });
-        throw new Error(
-          `[${this.collectionName} Service] Error while forgot password: ${error.message}`,
-        );
-      }
-      logger.warn(`[${this.collectionName} Service] Unknown error during registration`, {
+      loggedError(error, `[${this.collectionName} Service] forgotPassword service error`, {
         email,
       });
-      throw new Error(
-        `[${this.collectionName} Service] Unknown error occurred while forgot password`,
-      );
+      throw error;
     }
   };
 
@@ -307,25 +255,10 @@ export class AuthService {
       });
       return { message: "Password reset successful" };
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Service] Error during registration`, {
-          error: error.message,
-          resetToken: resetPasswordDto.resetToken,
-        });
-        throw new Error(
-          `[${this.collectionName} Service] Error while reset password: ${error.message}`,
-        );
-      }
-      logger.warn(`[${this.collectionName} Service] Unknown error during registration`, {
+      loggedError(error, `[${this.collectionName} Service] resetPassword service error`, {
         resetToken: resetPasswordDto.resetToken,
       });
-      throw new Error(
-        `[${this.collectionName} Service] Unknown error occurred while reset password`,
-      );
+      throw error;
     }
   };
 }

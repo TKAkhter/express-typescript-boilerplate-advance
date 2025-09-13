@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { logger } from "@/common/winston/winston";
+import { loggedError } from "@/utils/utils";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const updateFileToDisk = async (fileName: string, file: any) => {
@@ -39,9 +40,8 @@ export const updateFileToDisk = async (fileName: string, file: any) => {
     });
     // Added return statement
     return response;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    logger.warn("Error updating file:", error);
-    throw new Error(error);
+  } catch (error) {
+    loggedError(error, "Error updating file", { fileName, file });
+    throw error;
   }
 };

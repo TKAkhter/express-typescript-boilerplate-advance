@@ -1,12 +1,13 @@
 import { NextFunction, Response } from "express";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
-import { checkRedis, createHealthCheckResponse, formatMemoryUsage } from "@/helpers/health.helper";
-import { StatusCodes } from "http-status-codes";
+import { checkRedis, formatMemoryUsage } from "@/helpers/health.helper";
 import fs from "fs";
 import { env } from "@/config/env";
 import path from "path";
 import { RedisClient } from "@/config/redis/redis";
+import { loggedError } from "@/utils/utils";
+import { createResponse } from "@/utils/create-response";
 
 export class HealthController {
   private logFileName: string;
@@ -21,7 +22,7 @@ export class HealthController {
    * @param res - Response object
    * @param next - Next middleware function
    */
-  health = async (_: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+  health = async (_: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const healthCheck = {
         redis: await checkRedis(),
@@ -38,17 +39,10 @@ export class HealthController {
         ? "unhealthy"
         : "healthy";
 
-      res
-        .status(overallStatus === "healthy" ? StatusCodes.OK : StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(createHealthCheckResponse(overallStatus, healthCheck));
+      const data = { status: overallStatus, details: healthCheck };
+      res.json(createResponse({ data, message: overallStatus }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`${this.logFileName} health API error`, {
-          error: error.message,
-        });
-      } else {
-        logger.warn(`${this.logFileName} health API error: Unknown error occurred`);
-      }
+      loggedError(error, `${this.logFileName} health API error`);
       next(error);
     }
   };
@@ -59,7 +53,7 @@ export class HealthController {
    * @param res - Response object
    * @param next - Next middleware function
    */
-  clearCache = async (_: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+  clearCache = async (_: CustomRequest, res: Response, next: NextFunction) => {
     try {
       const redis = RedisClient.getInstance();
       const stream = redis.scanStream({
@@ -79,15 +73,11 @@ export class HealthController {
       } else {
         logger.info("No keys found with prefix apiResponseCache");
       }
-      res.json({ message: "Cache cleared successfully" });
+
+      const data = { message: "Cache cleared successfully" };
+      res.json(createResponse({ data, message: data.message }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`${this.logFileName} clearCache API error`, {
-          error: error.message,
-        });
-      } else {
-        logger.warn(`${this.logFileName} clearCache API error: Unknown error occurred`);
-      }
+      loggedError(error, `${this.logFileName} clearCache API error`);
       next(error);
     }
   };
@@ -98,7 +88,7 @@ export class HealthController {
    * @param res - Response object
    * @param next - Next middleware function
    */
-  clearLogFiles = async (_: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+  clearLogFiles = async (_: CustomRequest, res: Response, next: NextFunction) => {
     try {
       if (!fs.existsSync(env.LOGS_DIRECTORY)) {
         fs.mkdirSync(env.LOGS_DIRECTORY);
@@ -111,15 +101,10 @@ export class HealthController {
         fs.unlinkSync(filePath);
       });
 
-      res.json({ message: "All log files have been cleared." });
+      const data = { message: "All log files have been cleared." };
+      res.json(createResponse({ data, message: data.message }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`${this.logFileName} clearLogFiles API error`, {
-          error: error.message,
-        });
-      } else {
-        logger.warn(`${this.logFileName} clearLogFiles API error: Unknown error occurred`);
-      }
+      loggedError(error, `${this.logFileName} clearLogFiles API error`);
       next(error);
     }
   };

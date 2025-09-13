@@ -10,6 +10,7 @@ import { Files, Users } from "@prisma/client";
 import { prismaInstance } from "@/config/prisma/prisma";
 import { FileService } from "../services/files.service";
 import { deleteFileFromDisk } from "@/common/multer/delete-file-from-disk";
+import { loggedError } from "@/utils/utils";
 
 const prisma = prismaInstance();
 const IGNORE_FIELDS = { password: true };
@@ -33,8 +34,7 @@ export class UserController extends BaseController<Users, CreateUsersDto, Update
    * @param next - Next middleware function
    * @returns JSON created entity
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  create = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  create = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const createDto = req.body;
     const { loggedUser } = req;
     try {
@@ -43,15 +43,12 @@ export class UserController extends BaseController<Users, CreateUsersDto, Update
         createDto,
       });
       const created = await this.userService.create(createDto);
-      return res.json(createResponse({ data: created, status: StatusCodes.CREATED }));
+      res.json(createResponse({ data: created, status: StatusCodes.CREATED }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Controller] Error creating ${this.collectionName}`, {
-          error: error.message,
-          loggedUser,
-          createDto,
-        });
-      }
+      loggedError(error, `[${this.collectionName} Controller] create API error`, {
+        loggedUser,
+        createDto,
+      });
       next(error);
     }
   };
@@ -63,8 +60,7 @@ export class UserController extends BaseController<Users, CreateUsersDto, Update
    * @param next - Next middleware function
    * @returns JSON updated entity
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  update = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  update = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const updateDto = req.body;
     const { loggedUser } = req;
@@ -75,16 +71,13 @@ export class UserController extends BaseController<Users, CreateUsersDto, Update
         updateDto,
       });
       const updatedData = await this.userService.update(id, updateDto);
-      return res.json(createResponse({ data: updatedData, status: StatusCodes.CREATED }));
+      res.json(createResponse({ data: updatedData }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Controller] Error updating ${this.collectionName}`, {
-          error: error.message,
-          loggedUser,
-          id,
-          updateDto,
-        });
-      }
+      loggedError(error, `[${this.collectionName} Controller] update API error`, {
+        id,
+        loggedUser,
+        updateDto,
+      });
       next(error);
     }
   };
@@ -96,8 +89,7 @@ export class UserController extends BaseController<Users, CreateUsersDto, Update
    * @param next - Next middleware function
    * @returns JSON success message
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  delete = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const { id } = req.params;
     try {
@@ -118,15 +110,12 @@ export class UserController extends BaseController<Users, CreateUsersDto, Update
 
       const data = await this.baseService.delete(id);
 
-      return res.json(createResponse({ data }));
+      res.json(createResponse({ data }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(`[${this.collectionName} Controller] Error deleting ${this.collectionName}`, {
-          error: error.message,
-          id,
-          loggedUser,
-        });
-      }
+      loggedError(error, `[${this.collectionName} Controller] delete API error`, {
+        id,
+        loggedUser,
+      });
       next(error);
     }
   };

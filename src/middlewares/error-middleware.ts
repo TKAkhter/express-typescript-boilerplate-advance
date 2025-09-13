@@ -5,27 +5,10 @@ import { env } from "@/config/env";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
 import { prismaInstance } from "@/config/prisma/prisma";
+import { cleanObject, findDeep, loggedError } from "@/utils/utils";
+import { createResponse } from "@/utils/create-response";
 
 const prisma = prismaInstance();
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const findDeep = (obj: any, keys: string[]): any => {
-  if (!obj || typeof obj !== "object") {
-    return null;
-  }
-  for (const key of keys) {
-    if (key in obj) {
-      return obj[key];
-    }
-  }
-  for (const value of Object.values(obj)) {
-    const found = findDeep(value, keys);
-    if (found) {
-      return found;
-    }
-  }
-  return null;
-};
 
 /**
  * Error middleware for catching and logging errors.
@@ -106,21 +89,26 @@ export const errorMiddleware = (
         data: errorLogs,
       })
       .then(() => logger.info("Error logs saved successfully"))
-      .catch((error) => logger.error("Error saving error logs", error));
+      .catch((error) => loggedError(error, "Error saving error logs"));
   }
 
-  const responsePayload = {
-    status: statusCode,
-    message: message.trim(),
+  const responsePayload = cleanObject({
+    method,
+    url,
     ...(env.NODE_ENV !== "production" && {
-      method,
-      url,
+      name: appName,
       loggedUser,
-      name,
       details: transformDetails,
       stack,
     }),
-  };
+  });
 
-  return res.status(statusCode).json(responsePayload);
+  return res.json(
+    createResponse({
+      data: responsePayload,
+      status: statusCode,
+      message: message.trim(),
+      success: false,
+    }),
+  );
 };

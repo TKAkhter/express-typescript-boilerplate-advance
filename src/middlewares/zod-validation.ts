@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { ZodError, ZodTypeAny } from "zod";
-import { logger } from "@/common/winston/winston";
 import { createResponse } from "@/utils/create-response";
+import { loggedError } from "@/utils/utils";
 
 export const zodValidation =
   (zSchema: ZodTypeAny) =>
@@ -14,13 +14,11 @@ export const zodValidation =
         req.body = data;
         next();
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       const errorMessage = `Validation Error: ${(error as ZodError).errors.map((e) => e.message).join(", ")}`;
-      logger.warn(errorMessage, error);
+      loggedError(error, errorMessage);
       return res.status(StatusCodes.BAD_REQUEST).json(
         createResponse({
-          req,
           data: error,
           message: errorMessage,
           status: StatusCodes.BAD_REQUEST,

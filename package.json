@@ -16,8 +16,8 @@
     "prisma:gen": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
+    "lint": "eslint src/** --ext .ts",
+    "lint:fix": "npm run lint -- --fix",
     "prettier": "prettier --write src/**",
     "prettier:check": "prettier --check src/**",
     "prepare": "husky"
