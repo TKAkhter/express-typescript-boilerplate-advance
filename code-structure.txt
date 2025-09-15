@@ -1,15 +1,19 @@
+Directory Structure:
+-------------------
+/ 
+├── .github/
+│   └── workflows/
+│       └── release.yml
 ├── .husky/
 │   └── pre-commit
 ├── .vscode/
 │   └── launch.json
+├── logs/
 ├── prisma/
-│   └── schema.prisma
+│   ├── schema.prisma
+│   └── seed.ts
 ├── src/
 │   ├── common/
-│   │   ├── base/
-│   │   │   ├── base.controller.ts
-│   │   │   ├── base.repository.ts
-│   │   │   └── base.services.ts
 │   │   ├── jwt/
 │   │   │   └── jwt.ts
 │   │   ├── mail-sender/
@@ -33,47 +37,52 @@
 │   │   ├── redis/
 │   │   │   └── redis.ts
 │   │   └── env.ts
-│   ├── entities/
-│   │   ├── auth/
-│   │   │   ├── auth.controller.ts
-│   │   │   ├── auth.dto.ts
-│   │   │   ├── auth.route.ts
-│   │   │   └── auth.services.ts
-│   │   ├── file/
-│   │   │   ├── file.controller.ts
-│   │   │   ├── file.dto.ts
-│   │   │   ├── file.route.ts
-│   │   │   └── file.service.ts
-│   │   ├── health/
-│   │   │   ├── health.controller.ts
-│   │   │   ├── health.helper.ts
-│   │   │   └── health.route.ts
-│   │   └── user/
-│   │       ├── user.controller.ts
-│   │       ├── user.dto.ts
-│   │       ├── user.route.ts
-│   │       └── user.service.ts
+│   ├── constants/
+│   │   └── index.ts
+│   ├── controllers/
+│   │   ├── auth.controller.ts
+│   │   ├── base.controller.ts
+│   │   ├── files.controller.ts
+│   │   ├── health.controller.ts
+│   │   └── users.controller.ts
 │   ├── generated/
 │   │   └── zod/
 │   │       └── index.ts
+│   ├── helpers/
+│   │   └── health.helper.ts
 │   ├── middlewares/
 │   │   ├── auth-middleware.ts
 │   │   ├── cors.ts
 │   │   ├── error-middleware.ts
-│   │   ├── index.ts
 │   │   └── zod-validation.ts
+│   ├── respository/
+│   │   ├── base.repository.ts
+│   │   └── users.repository.ts
 │   ├── routes/
-│   │   └── routes.ts
+│   │   ├── auth.route.ts
+│   │   ├── files.route.ts
+│   │   ├── health.route.ts
+│   │   ├── routes.ts
+│   │   └── users.route.ts
 │   ├── schemas/
+│   │   ├── auth.dto.ts
+│   │   ├── files.dto.ts
 │   │   ├── find-by-query.ts
 │   │   ├── import-file.ts
-│   │   └── query-examples.txt
+│   │   ├── query-examples.txt
+│   │   └── users.dto.ts
+│   ├── services/
+│   │   ├── auth.services.ts
+│   │   ├── base.services.ts
+│   │   ├── files.service.ts
+│   │   └── users.service.ts
 │   ├── template/
 │   │   ├── create-template.ts
 │   │   └── forgot-password.hbs
 │   ├── types/
 │   │   ├── pagination.ts
-│   │   └── request.ts
+│   │   ├── request.ts
+│   │   └── types.ts
 │   ├── utils/
 │   │   ├── create-response.ts
 │   │   ├── csv-to-json.ts
@@ -85,18 +94,23 @@
 │   ├── auth.validation.test.ts
 │   ├── files.test.ts
 │   └── test.helper.ts
-├── .DS_Store
 ├── .env
 ├── .env.example
 ├── .gitignore
 ├── .prettierignore
 ├── .prettierrc
+├── code.txt
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
 ├── eslint.config.mjs
 ├── jest.config.ts
 ├── jest.setup.ts
+├── LICENSE.md
 ├── nodemon.json
+├── package-lock.json
 ├── package.json
 ├── README.md
+├── SECURITY.md
 ├── test-data.example.json
 ├── test-data.json
 └── tsconfig.json

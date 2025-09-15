@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { authMiddleware, zodValidation } from "@/middlewares";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/common/swagger/swagger-response-builder";
 import {
@@ -9,8 +8,11 @@ import {
   logoutSchema,
   registerSchema,
   resetPasswordSchema,
-} from "@/entities/auth/auth.dto";
-import { AuthController } from "@/entities/auth/auth.controller";
+  authResponseSchema,
+} from "@/schemas/auth.dto";
+import { AuthController } from "@/controllers/auth.controller";
+import { zodValidation } from "@/middlewares/zod-validation";
+import { authMiddleware } from "@/middlewares/auth-middleware";
 
 const authRouter = Router();
 
@@ -32,7 +34,7 @@ authRegistry.registerPath({
       content: { "application/json": { schema: loginSchema } },
     },
   },
-  responses: createApiResponse(loginSchema, "Login Successfully"),
+  responses: createApiResponse(authResponseSchema, "Login Successfully"),
 });
 authRouter.post("/login", zodValidation(loginSchema), authController.login);
 
@@ -48,7 +50,7 @@ authRegistry.registerPath({
       content: { "application/json": { schema: registerSchema } },
     },
   },
-  responses: createApiResponse(registerSchema, "Register Successfully"),
+  responses: createApiResponse(authResponseSchema, "Register Successfully"),
 });
 authRouter.post("/register", zodValidation(registerSchema), authController.register);
 

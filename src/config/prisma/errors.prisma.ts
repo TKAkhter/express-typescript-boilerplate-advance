@@ -17,11 +17,15 @@ const formatValidationError = (error: any): string => {
 const formatKnownRequestError = (error: Prisma.PrismaClientKnownRequestError): string => {
   switch (error.code) {
     case "P2002":
-      return "-> Unique Constraint Violation: A record with this value already exists.";
+      return "A record with this value already exists.";
+    case "P2003":
+      return "Foreign key constraint failed.";
+    case "P2023":
+      return "Invalid ID format. Please provide a correct ID.";
     case "P2025":
-      return "-> Record Not Found: The requested record does not exist.";
+      return "Record Not Found: The requested record does not exist.";
     default:
-      return `-> Prisma Request Error (${error.code}): ${error.message}`;
+      return `Prisma Request Error (${error.code}): ${error.message}`;
   }
 };
 

@@ -1,24 +1,29 @@
 import { NextFunction, Response } from "express";
-import { UserService } from "@/entities/user/user.service";
+import { UsersService } from "@/services/users.service";
 import { StatusCodes } from "http-status-codes";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
 import { createResponse } from "@/utils/create-response";
-import { BaseController } from "@/common/base/base.controller";
-import { CreateUserDto, UpdateUserDto } from "@/entities/user/user.dto";
-import { PrismaClient, user as User } from "@prisma/client";
+import { BaseController } from "@/controllers/base.controller";
+import { CreateUsersDto, UpdateUsersDto } from "@/schemas/users.dto";
+import { Files, Users } from "@prisma/client";
+import { prismaInstance } from "@/config/prisma/prisma";
+import { FileService } from "../services/files.service";
+import { deleteFileFromDisk } from "@/common/multer/delete-file-from-disk";
 
-const prisma = new PrismaClient();
+const prisma = prismaInstance();
 const IGNORE_FIELDS = { password: true };
 
-export class UserController extends BaseController<User, CreateUserDto, UpdateUserDto> {
+export class UserController extends BaseController<Users, CreateUsersDto, UpdateUsersDto> {
   public collectionName: string;
-  public userService: UserService;
+  public userService: UsersService;
+  public fileService: FileService;
 
   constructor() {
-    super(prisma.user, "User", IGNORE_FIELDS);
-    this.collectionName = "User";
-    this.userService = new UserService(prisma.user, this.collectionName, IGNORE_FIELDS);
+    super(prisma.users, "Users", IGNORE_FIELDS);
+    this.collectionName = "Users";
+    this.userService = new UsersService(prisma.users, this.collectionName, IGNORE_FIELDS);
+    this.fileService = new FileService(prisma.files, "Files", {});
   }
 
   /**
@@ -78,6 +83,48 @@ export class UserController extends BaseController<User, CreateUserDto, UpdateUs
           loggedUser,
           id,
           updateDto,
+        });
+      }
+      next(error);
+    }
+  };
+
+  /**
+   * Delete a entity by ID
+   * @param req - CustomRequest object
+   * @param res - Response object
+   * @param next - Next middleware function
+   * @returns JSON success message
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+    const { loggedUser } = req;
+    const { id } = req.params;
+    try {
+      logger.info(`[${this.collectionName} Controller] Deleting ${this.collectionName} by id`, {
+        id,
+        loggedUser,
+      });
+
+      const files = await this.fileService.getByUser(id);
+
+      if (Array.isArray(files) && files.length > 0) {
+        (files as Files[]).map(async (file: Files) => {
+          const fileName = file.path!.split("/").pop();
+          await deleteFileFromDisk(fileName!);
+        });
+        await this.fileService.deleteMany((files as Files[]).map((file: Files) => file.id));
+      }
+
+      const data = await this.baseService.delete(id);
+
+      return res.json(createResponse({ data }));
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.warn(`[${this.collectionName} Controller] Error deleting ${this.collectionName}`, {
+          error: error.message,
+          id,
+          loggedUser,
         });
       }
       next(error);

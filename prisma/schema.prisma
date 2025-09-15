@@ -23,37 +23,66 @@ generator zod {
 
 datasource db {
   provider = "mongodb"
-  url      = env("MONGODB_URI")
+  url      = env("DATABASE_URI")
 }
 
-model user {
+model Users {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  email       String    @unique
+  password    String
+  role        Roles     @relation(fields: [roleId], references: [id])
+  roleId      String    @db.ObjectId
+  tenant      Tenants   @relation(fields: [tenantId], references: [id])
+  tenantId    String    @db.ObjectId
   name        String?
-  email       String
-  password    String?
-  resetToken  String?
-  createdAt   DateTime? @default(now())
-  updatedAt   DateTime? @updatedAt
   phoneNumber String?
   bio         String?
-  file        file[]
+  resetToken  String?
+  deletedAt   DateTime?
+  files       Files[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("users")
 }
 
-model file {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  user      user?     @relation(fields: [userId], references: [id])
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+model Tenants {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  users     Users[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tenants")
+}
+
+model Roles {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  users     Users[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("roles")
+}
+
+model Files {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      Users   @relation(fields: [userId], references: [id])
+  userId    String  @db.ObjectId
   name      String?
   path      String?
   text      String?
   tags      String?
   views     Int?
-  userId    String?   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("files")
 }
 
-model errorLogs {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+model ErrorLogs {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   status     String?
   message    String?
   method     String?
@@ -62,6 +91,8 @@ model errorLogs {
   name       String?
   stack      String?
   details    Json?
-  createdAt  DateTime? @default(now())
-  updatedAt  DateTime? @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("error_logs")
 }

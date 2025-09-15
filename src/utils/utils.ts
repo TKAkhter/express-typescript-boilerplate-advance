@@ -13,7 +13,7 @@ export const generatePassword = (): string => {
 
   const password = categories.map(getRandomChar).join("");
 
-  const remainingLength = Number(env.GENERATED_PASSWORD_LENGTH || 10) - password.length;
+  const remainingLength = env.GENERATED_PASSWORD_LENGTH - password.length;
   const allCharacters = categories.join("");
   const randomChars = Array.from({ length: remainingLength }, () => getRandomChar(allCharacters));
 

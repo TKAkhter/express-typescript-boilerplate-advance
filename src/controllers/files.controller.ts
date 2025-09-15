@@ -1,28 +1,29 @@
 import { NextFunction, Response } from "express";
-import { UpdateFileDto, UploadFileDto } from "@/entities/file/file.dto";
+import { UpdateFileDto, UploadFileDto } from "@/schemas/files.dto";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
 import { saveFileToDisk } from "@/common/multer/save-file-to-disk";
-import { updateImageToDisk } from "@/common/multer/update-file-to-disk";
+import { updateFileToDisk } from "@/common/multer/update-file-to-disk";
 import { deleteFileFromDisk } from "@/common/multer/delete-file-from-disk";
-import { BaseController } from "@/common/base/base.controller";
+import { BaseController } from "@/controllers/base.controller";
 import { createResponse } from "@/utils/create-response";
 import { StatusCodes } from "http-status-codes";
-import { FileService } from "@/entities/file/file.service";
-import { PrismaClient, file as File } from "@prisma/client";
+import { FileService } from "@/services/files.service";
+import { Files } from "@prisma/client";
+import { prismaInstance } from "@/config/prisma/prisma";
 import _ from "lodash";
 
-const prisma = new PrismaClient();
+const prisma = prismaInstance();
 const IGNORE_FIELDS = {};
 
-export class FileController extends BaseController<File, UploadFileDto, UpdateFileDto> {
+export class FileController extends BaseController<Files, UploadFileDto, UpdateFileDto> {
   public collectionName: string;
   public fileService: FileService;
 
   constructor() {
-    super(prisma.file, "File", IGNORE_FIELDS);
-    this.collectionName = "File";
-    this.fileService = new FileService(prisma.file, this.collectionName, IGNORE_FIELDS);
+    super(prisma.files, "Files", IGNORE_FIELDS);
+    this.collectionName = "Files";
+    this.fileService = new FileService(prisma.files, this.collectionName, IGNORE_FIELDS);
   }
 
   /**
@@ -117,7 +118,7 @@ export class FileController extends BaseController<File, UploadFileDto, UpdateFi
       }
       const fileName = existFile.path!.split("/").pop();
       if (req.file) {
-        await updateImageToDisk(fileName!, req.file);
+        await updateFileToDisk(fileName!, req.file);
       }
       const fileData = {
         name: _.isEmpty(updateData.name) ? existFile.name : updateData.name,

@@ -1,21 +1,21 @@
 import { NextFunction, Response } from "express";
-import { AuthDto, RegisterDto, ResetPasswordDto } from "@/entities/auth/auth.dto";
-import { AuthService } from "@/entities/auth/auth.services";
+import { AuthDto, RegisterDto, ResetPasswordDto } from "@/schemas/auth.dto";
+import { AuthService } from "@/services/auth.services";
 import { logger } from "@/common/winston/winston";
 import { CustomRequest } from "@/types/request";
 import { StatusCodes } from "http-status-codes";
 import { createResponse } from "@/utils/create-response";
-import { PrismaClient } from "@prisma/client";
+import { prismaInstance } from "@/config/prisma/prisma";
 
-const prisma = new PrismaClient();
+const prisma = prismaInstance();
 
 export class AuthController {
   private collectionName: string;
   private authService: AuthService;
 
   constructor() {
-    this.collectionName = "User";
-    this.authService = new AuthService(prisma.user, "User");
+    this.collectionName = "Users";
+    this.authService = new AuthService(prisma.users, "Users");
   }
 
   /**

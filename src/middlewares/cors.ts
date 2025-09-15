@@ -27,17 +27,7 @@ export const config = {
     }
   },
   optionsSuccessStatus: StatusCodes.OK,
-  methods: "GET,HEAD,OPTIONS,PUT,POST,DELETE",
-  credentials: true,
-  exposedHeaders: ["Content-Type", "set-cookie"],
-  options: {
-    "Access-Control-Allow-Origin": env.ALLOW_ORIGIN || "*",
-    "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-    "Access-Control-Allow-Methods": "GET,HEAD,OPTIONS,PUT,POST,DELETE",
-  },
 };
 
 // Initialize the CORS middleware with the configured settings
 export const cors = corsLibrary(config);
-
-export default { cors, config };

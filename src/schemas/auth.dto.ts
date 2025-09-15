@@ -1,3 +1,4 @@
+import { UsersSchema } from "@/generated/zod";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
@@ -43,6 +44,11 @@ export const loginSchema = z.object({
   password: passwordSchema,
 });
 
+export const authResponseSchema = z.object({
+  user: UsersSchema,
+  token: z.string(),
+});
+
 export const logoutSchema = z.object({
   success: z.boolean(),
 });
@@ -68,6 +74,7 @@ export const resetPasswordSchema = z
 
 export const registerSchema = z
   .object({
+    name: z.string().min(2).max(50),
     email: z.string().email(),
     password: passwordSchema,
     confirmPassword: z.string().min(8),

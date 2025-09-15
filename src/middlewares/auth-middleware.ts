@@ -19,3 +19,32 @@ export const authMiddleware = (req: CustomRequest, _: Response, next: NextFuncti
   winstonLogger.defaultMeta = { loggedUser: verify.email || verify.type };
   next();
 };
+
+// Export const authMiddleware = (requiredPermission?: string): any => {
+//   Return (req: CustomRequest, res: Response, next: NextFunction) => {
+//     Const authHeader = req.headers.authorization;
+//     If (!authHeader) {
+//       Throw createHttpError(StatusCodes.UNAUTHORIZED, "Unauthorized", {
+//         Resource: "Auth Middleware",
+//       });
+//     }
+
+//     Const token = authHeader.split(" ")[1];
+//     Try {
+//       Const verify = verifyToken(token);
+//       Req.user = verify;
+//       Req.loggedUser = verify.email || verify.type;
+//       WinstonLogger.defaultMeta = { loggedUser: verify.email || verify.type };
+
+//       If (requiredPermission && !verify.permissions.includes(requiredPermission)) {
+//         Return res.status(403).json({ error: "Forbidden" });
+//       }
+
+//       Return next();
+//     } catch {
+//       Throw createHttpError(StatusCodes.UNAUTHORIZED, "Unauthorized", {
+//         Resource: "Auth Middleware",
+//       });
+//     }
+//   };
+// };

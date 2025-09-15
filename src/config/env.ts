@@ -19,13 +19,20 @@ const envSchema = z.object({
   JWT_SECRET: z.string(),
   JWT_SECRET_EXPIRATION: z.string().default("1d"),
   HASH: z.string().transform((val) => parseInt(val, 10)),
-  GENERATED_PASSWORD_LENGTH: z.string().default("10"),
+  GENERATED_PASSWORD_LENGTH: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .default("10"),
 
   // DB Configuration
   REDIS_URL: z.string(),
+  DATABASE_URI: z.string().url(),
   MONGODB_URI: z.string().url(),
 
-  ENABLE_WINSTON: z.enum(["0", "1"]).default("0"),
+  ENABLE_WINSTON: z
+    .string()
+    .transform((val) => val === "true")
+    .default("false"),
   LOGS_TYPE: z.enum(["mongodb", "directory"]).default("mongodb"),
   MONGODB_ERROR_COLLECTION_NAME: z.string(),
 

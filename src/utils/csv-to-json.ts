@@ -2,7 +2,7 @@ import * as fs from "fs";
 import csv from "csv-parser";
 import { Readable } from "stream";
 import _ from "lodash";
-import { hash } from "bcrypt";
+import { hash } from "bcryptjs";
 import { env } from "@/config/env";
 import { logger } from "@/common/winston/winston";
 

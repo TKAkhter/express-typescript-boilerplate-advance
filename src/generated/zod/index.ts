@@ -63,28 +63,35 @@ export type InputJsonValueType = z.infer<typeof InputJsonValueSchema>;
 // ENUMS
 /////////////////////////////////////////
 
-export const UserScalarFieldEnumSchema = z.enum([
+export const UsersScalarFieldEnumSchema = z.enum([
   "id",
-  "name",
   "email",
   "password",
-  "resetToken",
-  "createdAt",
-  "updatedAt",
+  "roleId",
+  "tenantId",
+  "name",
   "phoneNumber",
   "bio",
-]);
-
-export const FileScalarFieldEnumSchema = z.enum([
-  "id",
+  "resetToken",
+  "deletedAt",
   "createdAt",
   "updatedAt",
+]);
+
+export const TenantsScalarFieldEnumSchema = z.enum(["id", "name", "createdAt", "updatedAt"]);
+
+export const RolesScalarFieldEnumSchema = z.enum(["id", "name", "createdAt", "updatedAt"]);
+
+export const FilesScalarFieldEnumSchema = z.enum([
+  "id",
+  "userId",
   "name",
   "path",
   "text",
   "tags",
   "views",
-  "userId",
+  "createdAt",
+  "updatedAt",
 ]);
 
 export const ErrorLogsScalarFieldEnumSchema = z.enum([
@@ -109,46 +116,75 @@ export const QueryModeSchema = z.enum(["default", "insensitive"]);
 /////////////////////////////////////////
 
 /////////////////////////////////////////
-// USER SCHEMA
+// USERS SCHEMA
 /////////////////////////////////////////
 
-export const userSchema = z.object({
+export const UsersSchema = z.object({
   id: z.string(),
-  name: z.string().nullable(),
   email: z.string(),
-  password: z.string().nullable(),
-  resetToken: z.string().nullable(),
-  createdAt: z.date().nullable(),
-  updatedAt: z.date().nullable(),
+  password: z.string(),
+  roleId: z.string(),
+  tenantId: z.string(),
+  name: z.string().nullable(),
   phoneNumber: z.string().nullable(),
   bio: z.string().nullable(),
+  resetToken: z.string().nullable(),
+  deletedAt: z.date().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export type user = z.infer<typeof userSchema>;
+export type Users = z.infer<typeof UsersSchema>;
 
 /////////////////////////////////////////
-// FILE SCHEMA
+// TENANTS SCHEMA
 /////////////////////////////////////////
 
-export const fileSchema = z.object({
+export const TenantsSchema = z.object({
   id: z.string(),
-  createdAt: z.date().nullable(),
-  updatedAt: z.date().nullable(),
+  name: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type Tenants = z.infer<typeof TenantsSchema>;
+
+/////////////////////////////////////////
+// ROLES SCHEMA
+/////////////////////////////////////////
+
+export const RolesSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type Roles = z.infer<typeof RolesSchema>;
+
+/////////////////////////////////////////
+// FILES SCHEMA
+/////////////////////////////////////////
+
+export const FilesSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
   name: z.string().nullable(),
   path: z.string().nullable(),
   text: z.string().nullable(),
   tags: z.string().nullable(),
   views: z.number().nullable(),
-  userId: z.string().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export type file = z.infer<typeof fileSchema>;
+export type Files = z.infer<typeof FilesSchema>;
 
 /////////////////////////////////////////
 // ERROR LOGS SCHEMA
 /////////////////////////////////////////
 
-export const errorLogsSchema = z.object({
+export const ErrorLogsSchema = z.object({
   id: z.string(),
   status: z.string().nullable(),
   message: z.string().nullable(),
@@ -158,8 +194,8 @@ export const errorLogsSchema = z.object({
   name: z.string().nullable(),
   stack: z.string().nullable(),
   details: JsonValueSchema.nullable(),
-  createdAt: z.date().nullable(),
-  updatedAt: z.date().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export type errorLogs = z.infer<typeof errorLogsSchema>;
+export type ErrorLogs = z.infer<typeof ErrorLogsSchema>;

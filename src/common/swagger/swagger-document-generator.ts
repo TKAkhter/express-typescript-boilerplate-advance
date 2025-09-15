@@ -1,9 +1,9 @@
 import { OpenAPIRegistry, OpenApiGeneratorV3 } from "@asteasolutions/zod-to-openapi";
 import { env } from "@/config/env";
-import { healthRegistry } from "@/entities/health/health.route";
-import { authRegistry } from "@/entities/auth/auth.route";
-import { userRegistry } from "@/entities/user/user.route";
-import { fileRegistry } from "@/entities/file/file.route";
+import { healthRegistry } from "@/routes/health.route";
+import { authRegistry } from "@/routes/auth.route";
+import { userRegistry } from "@/routes/users.route";
+import { fileRegistry } from "@/routes/files.route";
 
 export function generateOpenAPIDocument() {
   const registry = new OpenAPIRegistry([healthRegistry, authRegistry, userRegistry, fileRegistry]);

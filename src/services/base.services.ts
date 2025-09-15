@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/common/base/base.repository";
+import { BaseRepository } from "@/respository/base.repository";
 import { FindByQueryDto, FindByQueryResult, ImportResult } from "@/schemas/find-by-query";
 import { logger } from "@/common/winston/winston";
 import createHttpError from "http-errors";

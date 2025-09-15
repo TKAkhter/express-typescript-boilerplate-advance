@@ -3,7 +3,7 @@ import path from "path";
 import { logger } from "@/common/winston/winston";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const updateImageToDisk = async (fileName: string, file: any) => {
+export const updateFileToDisk = async (fileName: string, file: any) => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let response: any;
@@ -32,7 +32,7 @@ export const updateImageToDisk = async (fileName: string, file: any) => {
           return false;
         }
 
-        logger.info(`Image updated successfully: ${newFilePath}`);
+        logger.info(`File updated successfully: ${newFilePath}`);
         // Was removed from the response
         return { fileName, filePath: newFilePath };
       });
@@ -41,7 +41,7 @@ export const updateImageToDisk = async (fileName: string, file: any) => {
     return response;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    logger.warn("Error updating image:", error);
+    logger.warn("Error updating file:", error);
     throw new Error(error);
   }
 };
