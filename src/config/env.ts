@@ -13,9 +13,9 @@ const envSchema = z.object({
   LOG_FILE_DURATION: z.string().default("3d"),
   ALLOW_ORIGIN: z.string(),
   APP_URL: z.string().url(),
-  LOGS_DIRECTORY: z.string(),
+  LOGS_DIRECTORY: z.string().default("logs"),
 
-  // Basic Auth Secrets
+  // -- Basic Auth secrets --
   JWT_SECRET: z.string(),
   JWT_SECRET_EXPIRATION: z.string().default("1d"),
   HASH: z.string().transform((val) => parseInt(val, 10)),
@@ -24,8 +24,10 @@ const envSchema = z.object({
     .transform((val) => parseInt(val, 10))
     .default("10"),
 
-  // DB Configuration
+  // -- Redis --
   REDIS_URL: z.string(),
+
+  // Database
   DATABASE_URI: z.string().url(),
   MONGODB_URI: z.string().url(),
 

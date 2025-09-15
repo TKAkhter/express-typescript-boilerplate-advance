@@ -12,6 +12,7 @@ import { FileService } from "@/services/files.service";
 import { Files } from "@prisma/client";
 import { prismaInstance } from "@/config/prisma/prisma";
 import _ from "lodash";
+import { loggedError } from "@/utils/utils";
 
 const prisma = prismaInstance();
 const IGNORE_FIELDS = {};
@@ -33,8 +34,7 @@ export class FileController extends BaseController<Files, UploadFileDto, UpdateF
    * @param next - Next middleware function
    * @returns JSON entity object
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getByUser = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  getByUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { userId } = req.params;
     const { loggedUser } = req;
     try {
@@ -44,18 +44,12 @@ export class FileController extends BaseController<Files, UploadFileDto, UpdateF
       });
       const data = await this.fileService.getByUser(userId);
 
-      return res.json(createResponse({ data }));
+      res.json(createResponse({ data }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionName} Controller] Error fetching ${this.collectionName} by userId`,
-          {
-            error: error.message,
-            loggedUser,
-            userId,
-          },
-        );
-      }
+      loggedError(error, `[${this.collectionName} Controller] getByUser API error`, {
+        userId,
+        loggedUser,
+      });
       next(error);
     }
   };
@@ -67,8 +61,7 @@ export class FileController extends BaseController<Files, UploadFileDto, UpdateF
    * @param next - Next middleware function
    * @returns JSON updated entity
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  upload = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  upload = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     try {
       const { tags, userId, name, views } = req.body;
@@ -90,11 +83,9 @@ export class FileController extends BaseController<Files, UploadFileDto, UpdateF
       };
       const created = await this.baseService.create(fileUpload);
 
-      return res.json(createResponse({ data: created, status: StatusCodes.CREATED }));
+      res.json(createResponse({ data: created, status: StatusCodes.CREATED }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn("Error uploading file", { error: error.message, loggedUser });
-      }
+      loggedError(error, `[${this.collectionName} Controller] upload API error`, { loggedUser });
       next(error);
     }
   };
@@ -106,8 +97,7 @@ export class FileController extends BaseController<Files, UploadFileDto, UpdateF
    * @param next - Next middleware function
    * @returns JSON updated entity
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  update = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  update = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const { id } = req.params;
     try {
@@ -128,11 +118,12 @@ export class FileController extends BaseController<Files, UploadFileDto, UpdateF
       };
       const updated = await this.baseService.update(id, fileData);
 
-      return res.json(createResponse({ data: updated, status: StatusCodes.CREATED }));
+      res.json(createResponse({ data: updated }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn("Error updating file", { error: error.message, loggedUser, id });
-      }
+      loggedError(error, `[${this.collectionName} Controller] update API error`, {
+        id,
+        loggedUser,
+      });
       next(error);
     }
   };
@@ -144,8 +135,7 @@ export class FileController extends BaseController<Files, UploadFileDto, UpdateF
    * @param next - Next middleware function
    * @returns JSON updated entity
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  delete = async (req: CustomRequest, res: Response, next: NextFunction): Promise<any> => {
+  delete = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { loggedUser } = req;
     const { id } = req.params;
     try {
@@ -157,11 +147,12 @@ export class FileController extends BaseController<Files, UploadFileDto, UpdateF
       await deleteFileFromDisk(fileName!);
       const deleted = await this.baseService.delete(id);
 
-      return res.json(createResponse({ data: deleted, status: StatusCodes.CREATED }));
+      res.json(createResponse({ data: deleted }));
     } catch (error) {
-      if (error instanceof Error) {
-        logger.warn("Error deleting file", { error: error.message, loggedUser, id });
-      }
+      loggedError(error, `[${this.collectionName} Controller] delete API error`, {
+        id,
+        loggedUser,
+      });
       next(error);
     }
   };

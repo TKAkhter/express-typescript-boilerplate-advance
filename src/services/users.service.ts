@@ -7,6 +7,7 @@ import { logger } from "@/common/winston/winston";
 import { BaseService } from "@/services/base.services";
 import { PrismaClient, Users } from "@prisma/client";
 import { UsersRepository } from "@/respository/users.repository";
+import { loggedError } from "@/utils/utils";
 
 const prisma = new PrismaClient();
 
@@ -70,24 +71,10 @@ export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsers
 
       return await this.usersRepository.create(newDto);
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionNameService} Service] Error creating ${this.collectionNameService}`,
-          {
-            createDto,
-            error: error.message,
-          },
-        );
-        throw new Error(`Error creating ${this.collectionNameService}: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionNameService} Service] Unknown error occurred while creating ${this.collectionNameService}`,
-      );
-      throw new Error(`Unknown error occurred while creating ${this.collectionNameService}`);
+      loggedError(error, `[${this.collectionNameService} Service] create service error`, {
+        createDto,
+      });
+      throw error;
     }
   };
 
@@ -137,25 +124,11 @@ export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsers
 
       return await this.usersRepository.update(id, updateDto);
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionNameService} Service] Error updating ${this.collectionNameService}`,
-          {
-            id,
-            updateDto,
-            error: error.message,
-          },
-        );
-        throw new Error(`Error updating ${this.collectionNameService}: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionNameService} Service] Unknown error occurred while updating ${this.collectionNameService}`,
-      );
-      throw new Error(`Unknown error occurred while updating ${this.collectionNameService}`);
+      loggedError(error, `[${this.collectionNameService} Service] update service error`, {
+        id,
+        updateDto,
+      });
+      throw error;
     }
   };
 }

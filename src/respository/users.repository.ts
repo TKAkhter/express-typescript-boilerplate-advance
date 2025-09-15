@@ -4,7 +4,7 @@ import { BaseRepository } from "./base.repository";
 import { CreateUsersDto, UpdateUsersDto } from "@/schemas/users.dto";
 import { logger } from "@/common/winston/winston";
 import { formatPrismaError } from "@/config/prisma/errors.prisma";
-
+import { loggedError } from "@/utils/utils";
 export class UsersRepository extends BaseRepository<Users, CreateUsersDto, UpdateUsersDto> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private userModel: any;
@@ -36,13 +36,10 @@ export class UsersRepository extends BaseRepository<Users, CreateUsersDto, Updat
         },
       });
       return getAll;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.userCollectionName} Repository] Error fetching all from ${this.userCollectionName}`,
-        {
-          error: error.message,
-        },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -66,14 +63,11 @@ export class UsersRepository extends BaseRepository<Users, CreateUsersDto, Updat
           tenant: true,
         },
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.userCollectionName} Repository] Error fetching ${this.userCollectionName} by id`,
-        {
-          id,
-          error: error.message,
-        },
+        { id },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -97,14 +91,11 @@ export class UsersRepository extends BaseRepository<Users, CreateUsersDto, Updat
           tenant: true,
         },
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.userCollectionName} Repository] Error fetching ${this.userCollectionName} by userId`,
-        {
-          userId,
-          error: error.message,
-        },
+        { userId },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -127,14 +118,11 @@ export class UsersRepository extends BaseRepository<Users, CreateUsersDto, Updat
           tenant: true,
         },
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.userCollectionName} Repository] Error fetching ${this.userCollectionName} by email`,
-        {
-          email,
-          error: error.message,
-        },
+        { email },
       );
       throw new Error(formatPrismaError(error));
     }
@@ -159,15 +147,11 @@ export class UsersRepository extends BaseRepository<Users, CreateUsersDto, Updat
           tenant: true,
         },
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      logger.warn(
+    } catch (error) {
+      loggedError(
+        error,
         `[${this.userCollectionName} Repository] Error fetching ${this.userCollectionName} by ${field}`,
-        {
-          field,
-          value,
-          error: error.message,
-        },
+        { field, value },
       );
       throw new Error(formatPrismaError(error));
     }

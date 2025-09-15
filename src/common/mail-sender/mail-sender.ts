@@ -14,11 +14,4 @@ const options = {
 const mg = mailgun.client({ username: "api", key: options.auth.api_key }).messages;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const sendMail = async (mail: any) => {
-  try {
-    return await mg.create(options.auth.domain, mail);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    throw new Error(error);
-  }
-};
+export const sendMail = async (mail: any) => mg.create(options.auth.domain, mail);

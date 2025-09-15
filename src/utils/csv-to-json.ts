@@ -1,42 +1,7 @@
 import * as fs from "fs";
 import csv from "csv-parser";
 import { Readable } from "stream";
-import _ from "lodash";
-import { hash } from "bcryptjs";
-import { env } from "@/config/env";
-import { logger } from "@/common/winston/winston";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const transformData = async (value: string, key?: string): Promise<any> => {
-  if (key?.toLowerCase() === "password") {
-    try {
-      return await hash(value, env.HASH!);
-    } catch (error) {
-      logger.info(`Error hashing password: ${error}`);
-      throw new Error(`Error hashing password: ${error}`);
-    }
-  }
-  if (value === "NULL") {
-    return null;
-  }
-  if (value === "FALSE") {
-    return false;
-  }
-  if (value === "TRUE") {
-    return true;
-  }
-  if (value === "UNDEFINED") {
-    return undefined;
-  }
-  return value;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sanitizeEntry = ([key, value]: [string, any]): [string, any] => {
-  const sanitizedKey = _.trim(_.toLower(key.replace(/\s+/g, "")));
-  const sanitizedValue = _.trim(value);
-  return [sanitizedKey, sanitizedValue];
-};
+import { sanitizeEntry, transformData } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const csvToJson = (filePath: string): Promise<any[]> => {

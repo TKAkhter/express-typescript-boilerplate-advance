@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { env } from "@/config/env";
 import { logger } from "@/common/winston/winston";
 
-const allowedOrigins = (env.ALLOW_ORIGIN || "").split(",");
+const ALLOW_ORIGIN = (env.ALLOW_ORIGIN || "").split(",");
 
 /**
  * CORS configuration to check allowed origins and set the appropriate headers
@@ -18,7 +18,7 @@ const allowedOrigins = (env.ALLOW_ORIGIN || "").split(",");
 export const config = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   origin: (origin: string | undefined, callback: any) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || ALLOW_ORIGIN.includes(origin)) {
       callback(null, true);
     } else {
       logger.warn("Origin not allowed by CORS", { origin });

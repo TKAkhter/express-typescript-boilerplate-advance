@@ -5,7 +5,7 @@ import { env } from "@/config/env";
 import fs from "fs";
 import colors from "colors/safe";
 import "winston-mongodb";
-import _ from "lodash";
+import { cleanObject } from "@/utils/utils";
 
 const {
   ENABLE_WINSTON,
@@ -29,23 +29,7 @@ if (!fs.existsSync(LOGS_DIRECTORY) && ENABLE_WINSTON && !isMongoDBLogEnabled) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const cleanObject = (obj: any): any => {
-  if (_.isArray(obj)) {
-    return obj.map(cleanObject).filter((v) => !_.isNil(v) && (!_.isObject(v) || !_.isEmpty(v)));
-  }
-
-  if (_.isPlainObject(obj)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mapped = _.mapValues(obj, cleanObject) as Record<string, any>;
-    // eslint-disable-next-line no-mixed-operators
-    return _.omitBy(mapped, (v) => _.isNil(v) || (_.isObject(v) && _.isEmpty(v)));
-  }
-
-  return obj;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const formatConsoleMetaData = (metadata: any) => {
+export const formatConsoleMetaData = (metadata: any) => {
   if (!metadata) {
     return "";
   }

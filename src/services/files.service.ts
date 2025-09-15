@@ -1,8 +1,8 @@
-import createHttpError from "http-errors";
 import { logger } from "@/common/winston/winston";
 import { BaseService } from "@/services/base.services";
 import { UpdateFileDto, UploadFileDto } from "../schemas/files.dto";
 import { Files } from "@prisma/client";
+import { loggedError } from "@/utils/utils";
 
 export class FileService extends BaseService<Files, UploadFileDto, UpdateFileDto> {
   private collectionNameService: string;
@@ -34,25 +34,10 @@ export class FileService extends BaseService<Files, UploadFileDto, UpdateFileDto
 
       return data;
     } catch (error) {
-      if (createHttpError.isHttpError(error)) {
-        throw error;
-      }
-      if (error instanceof Error) {
-        logger.warn(
-          `[${this.collectionNameService} Service] Error fetching ${this.collectionNameService} by userId`,
-          {
-            userId,
-            error: error.message,
-          },
-        );
-        throw new Error(`Error fetching ${this.collectionNameService} by email: ${error.message}`);
-      }
-      logger.warn(
-        `[${this.collectionNameService} Service] Unknown error occurred while fetching ${this.collectionNameService} by email`,
-      );
-      throw new Error(
-        `Unknown error occurred while fetching ${this.collectionNameService} by email`,
-      );
+      loggedError(error, `[${this.collectionNameService} Service] getByUser service error`, {
+        userId,
+      });
+      throw error;
     }
   };
 }

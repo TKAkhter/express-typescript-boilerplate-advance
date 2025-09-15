@@ -5,9 +5,11 @@ export const checkRedis = async () => {
     const redis = RedisClient.getInstance();
     await redis.ping();
     return { status: "healthy", details: {} };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    return { status: "unhealthy", details: { error: error.message } };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { status: "unhealthy", details: { error: error.message } };
+    }
+    return { status: "unhealthy", details: { error: "Unknown error occurred" } };
   }
 };
 
@@ -20,8 +22,3 @@ export const formatMemoryUsage = () => {
     external: `${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`,
   };
 };
-
-export const createHealthCheckResponse = (status: string, details: Record<string, unknown>) => ({
-  status,
-  details,
-});
