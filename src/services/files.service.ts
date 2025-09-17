@@ -16,9 +16,9 @@ export class FileService extends BaseService<Files, UploadFileDto, UpdateFileDto
   /**
    * Fetches a entity by their userId.
    * @param userId - entity's userId
-   * @returns entity data or false if not found
+   * @returns entity data or null if not found
    */
-  getByUser = async (userId: string): Promise<Files | Files[] | false> => {
+  getByUser = async (userId: string): Promise<Files | Files[] | null> => {
     try {
       logger.info(
         `[${this.collectionNameService} Service] Fetching ${this.collectionNameService} with userId: ${userId}`,
@@ -29,7 +29,7 @@ export class FileService extends BaseService<Files, UploadFileDto, UpdateFileDto
         logger.warn(
           `[${this.collectionNameService} Service] ${this.collectionNameService} with userId ${userId} not found`,
         );
-        return false;
+        return null;
       }
 
       return data;

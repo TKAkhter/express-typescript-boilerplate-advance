@@ -2,7 +2,7 @@ import app from "@/app";
 import { env } from "@/config/env";
 import { logger } from "@/common/winston/winston";
 import { checkRedis } from "@/helpers/health.helper";
-import { connectPrisma } from "@/config/prisma/prisma";
+import { connectPrisma, prismaInstance } from "@/config/prisma/prisma";
 import { RedisClient } from "@/config/redis/redis";
 
 const { PORT, NODE_ENV, BASE_URL, ALLOW_ORIGIN } = env;
@@ -45,10 +45,11 @@ checkConnections().then(() => {
   const onCloseSignal = async () => {
     logger.info("SIGTERM signal received. Closing server...");
     const redis = RedisClient.getInstance();
-
+    const prisma = prismaInstance();
     // Close Prisma connection
     try {
       await redis.disconnect();
+      await prisma.$disconnect();
       logger.info("Prisma disconnected successfully.");
     } catch (err) {
       logger.error("Error disconnecting Prisma:", { err });

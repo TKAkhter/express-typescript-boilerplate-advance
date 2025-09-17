@@ -1,17 +1,18 @@
 import { compare, hash } from "bcryptjs";
 import { logger } from "@/common/winston/winston";
 import { AuthDto, RegisterDto, ResetPasswordDto } from "@/schemas/auth.dto";
-import { generateToken, verifyToken } from "@/common/jwt/jwt";
+import { generateToken, generateResetToken, verifyToken } from "@/common/jwt/jwt";
 import createHttpError from "http-errors";
 import { StatusCodes } from "http-status-codes";
 import { UsersService } from "@/services/users.service";
 import { sendMail } from "@/common/mail-sender/mail-sender";
-import { BaseRepository } from "@/respository/base.repository";
+import { BaseRepository } from "@/repository/base.repository";
 import { CreateUsersDto, UpdateUsersDto } from "@/schemas/users.dto";
 import { env } from "@/config/env";
 import { createTemplate } from "@/template/create-template";
 import { Users } from "@prisma/client";
 import { loggedError } from "@/utils/utils";
+import { COLLECTION_NAMES } from "@/constants";
 
 export class AuthService {
   private collectionName: string;
@@ -21,8 +22,8 @@ export class AuthService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(model: any, collectionName: string) {
     this.collectionName = collectionName;
-    this.usersService = new UsersService(model, "Users");
-    this.userRepository = new BaseRepository(model, "Users");
+    this.usersService = new UsersService(model, COLLECTION_NAMES.users);
+    this.userRepository = new BaseRepository(model, COLLECTION_NAMES.users);
   }
 
   /**
@@ -60,11 +61,7 @@ export class AuthService {
         });
       }
 
-      const token = generateToken({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      });
+      const token = generateToken(user);
 
       logger.info(`[${this.collectionName} Service] Token received successfully`, {
         email: authData.email,
@@ -120,11 +117,7 @@ export class AuthService {
 
     try {
       const payload = verifyToken(token);
-      const newToken = generateToken({
-        id: payload.id,
-        name: payload.name,
-        email: payload.email,
-      });
+      const newToken = generateToken(payload);
       logger.info(`[${this.collectionName} Service] Token extended successfully`, { newToken });
       return newToken;
     } catch (error) {
@@ -171,16 +164,10 @@ export class AuthService {
         });
       }
 
-      const resetToken = generateToken({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      });
+      const resetToken = generateResetToken(user);
 
       await this.usersService.update(user.id as string, {
         resetToken,
-        name: user.name!,
-        email: user.email,
         updatedAt: new Date(),
       });
 
@@ -237,6 +224,8 @@ export class AuthService {
           resource: "Auth",
         });
       }
+
+      verifyToken(resetPasswordDto.resetToken);
 
       if (!user[0].resetToken || resetPasswordDto.resetToken !== user[0].resetToken) {
         throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid or expired reset token.");

@@ -7,6 +7,7 @@ import { StatusCodes } from "http-status-codes";
 import { createResponse } from "@/utils/create-response";
 import { prismaInstance } from "@/config/prisma/prisma";
 import { loggedError } from "@/utils/utils";
+import { COLLECTION_NAMES } from "@/constants";
 
 const prisma = prismaInstance();
 
@@ -15,8 +16,8 @@ export class AuthController {
   private authService: AuthService;
 
   constructor() {
-    this.collectionName = "Users";
-    this.authService = new AuthService(prisma.users, "Users");
+    this.collectionName = COLLECTION_NAMES.users;
+    this.authService = new AuthService(prisma.users, COLLECTION_NAMES.users);
   }
 
   /**
@@ -116,8 +117,8 @@ export class AuthController {
    * @param next - Next middleware function
    */
   extendToken = async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization?.split(" ")[1];
     const { loggedUser } = req;
+    const { token } = req.body;
     logger.info(`[${this.collectionName} Controller] ExtendToken API invoked`, {
       token,
       loggedUser,

@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/respository/base.repository";
+import { BaseRepository } from "@/repository/base.repository";
 import { FindByQueryDto, FindByQueryResult, ImportResult } from "@/schemas/find-by-query";
 import { logger } from "@/common/winston/winston";
 import createHttpError from "http-errors";
@@ -66,9 +66,9 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
   /**
    * Fetches a entity by their email.
    * @param email - entity's email
-   * @returns entity data or false if not found
+   * @returns entity data or null if not found
    */
-  getByEmail = async (email: string): Promise<T | false> => {
+  getByEmail = async (email: string): Promise<T | null> => {
     try {
       logger.info(
         `[${this.collectionName} Service] Fetching ${this.collectionName} with email: ${email}`,
@@ -79,7 +79,7 @@ export class BaseService<T, TCreateDto, TUpdateDto> {
         logger.warn(
           `[${this.collectionName} Service] ${this.collectionName} with email ${email} not found`,
         );
-        return false;
+        return null;
       }
 
       return data;

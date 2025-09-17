@@ -9,11 +9,12 @@ import { findByQuerySchema } from "@/schemas/find-by-query";
 import { FilesSchema } from "@/generated/zod";
 import { zodValidation } from "@/middlewares/zod-validation";
 import { authMiddleware } from "@/middlewares/auth-middleware";
+import { COLLECTION_NAMES } from "@/constants";
 
 const fileRouter = Router();
 fileRouter.use(authMiddleware);
 
-const TAG = "File";
+const TAG = COLLECTION_NAMES.files;
 const ROUTE = `/${TAG.toLowerCase()}`;
 
 export const fileRegistry = new OpenAPIRegistry();

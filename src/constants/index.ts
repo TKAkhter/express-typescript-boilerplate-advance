@@ -3,3 +3,8 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
   user: ["USER_READ", "FILE_UPLOAD"],
   company: ["USER_READ", "FILE_UPLOAD", "VIEW_REPORTS"],
 };
+
+export const COLLECTION_NAMES = {
+  users: "Users",
+  files: "Files",
+};

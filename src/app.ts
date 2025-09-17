@@ -1,6 +1,6 @@
 import { cors } from "./middlewares/cors";
 import { errorMiddleware } from "./middlewares/error-middleware";
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import { apiRoutes } from "@/routes/routes";
 import { env } from "@/config/env";
 import { logger, morganStream } from "@/common/winston/winston";
@@ -82,9 +82,7 @@ app.use(openAPIRouter);
 logger.info("Swagger UI routes set up");
 
 // Custom Error Handler Middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  errorMiddleware(err, req, res, next);
-});
+app.use(errorMiddleware);
 
 // Catch 404 and forward to error handler
 app.use((_: Request, res: Response) => {

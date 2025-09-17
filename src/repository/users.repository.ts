@@ -5,6 +5,7 @@ import { CreateUsersDto, UpdateUsersDto } from "@/schemas/users.dto";
 import { logger } from "@/common/winston/winston";
 import { formatPrismaError } from "@/config/prisma/errors.prisma";
 import { loggedError } from "@/utils/utils";
+import { COLLECTION_NAMES } from "@/constants";
 export class UsersRepository extends BaseRepository<Users, CreateUsersDto, UpdateUsersDto> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private userModel: any;
@@ -13,7 +14,7 @@ export class UsersRepository extends BaseRepository<Users, CreateUsersDto, Updat
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(model: any, collectionName: string, ignoreFields: Record<string, boolean> = {}) {
-    super(model, "Users");
+    super(model, COLLECTION_NAMES.users);
     this.userModel = model;
     this.userCollectionName = collectionName;
     this.userIgnoreFields = ignoreFields;

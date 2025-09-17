@@ -10,11 +10,12 @@ import { Router } from "express";
 import { importFileSchema } from "@/schemas/import-file";
 import { uploadImportMiddleware } from "@/common/multer/multer";
 import { UsersSchema } from "@/generated/zod";
+import { COLLECTION_NAMES } from "@/constants";
 
 const userRouter = Router();
 userRouter.use(authMiddleware);
 
-const TAG = "Users";
+const TAG = COLLECTION_NAMES.users;
 const ROUTE = `/${TAG.toLowerCase()}`;
 
 export const userRegistry = new OpenAPIRegistry();

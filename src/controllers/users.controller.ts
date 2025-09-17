@@ -11,6 +11,7 @@ import { prismaInstance } from "@/config/prisma/prisma";
 import { FileService } from "../services/files.service";
 import { deleteFileFromDisk } from "@/common/multer/delete-file-from-disk";
 import { loggedError } from "@/utils/utils";
+import { COLLECTION_NAMES } from "@/constants";
 
 const prisma = prismaInstance();
 const IGNORE_FIELDS = { password: true };
@@ -21,11 +22,115 @@ export class UserController extends BaseController<Users, CreateUsersDto, Update
   public fileService: FileService;
 
   constructor() {
-    super(prisma.users, "Users", IGNORE_FIELDS);
-    this.collectionName = "Users";
+    super(prisma.users, COLLECTION_NAMES.users, IGNORE_FIELDS);
+    this.collectionName = COLLECTION_NAMES.users;
     this.userService = new UsersService(prisma.users, this.collectionName, IGNORE_FIELDS);
-    this.fileService = new FileService(prisma.files, "Files", {});
+    this.fileService = new FileService(prisma.files, COLLECTION_NAMES.files, {});
   }
+
+  /**
+   * Get all entities objects
+   * @param _req - CustomRequest object
+   * @param res - Response object
+   * @param next - Next middleware function
+   * @returns JSON list of entities
+   */
+  getAll = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { loggedUser } = req;
+    try {
+      logger.info(`[${this.collectionName} Controller] Fetching all ${this.collectionName}`, {
+        loggedUser,
+      });
+      const data = await this.userService.getAll();
+
+      res.json(createResponse({ data }));
+    } catch (error) {
+      loggedError(error, `[${this.collectionName} Controller] getAll API error`, { loggedUser });
+      next(error);
+    }
+  };
+
+  /**
+   * Get entity by ID
+   * @param req - CustomRequest object
+   * @param res - Response object
+   * @param next - Next middleware function
+   * @returns JSON entity object
+   */
+  getById = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { loggedUser } = req;
+    const { id } = req.params;
+    try {
+      logger.info(`[${this.collectionName} Controller] Fetching ${this.collectionName} by ID`, {
+        id,
+        loggedUser,
+      });
+      const data = await this.userService.getById(id);
+
+      res.json(createResponse({ data }));
+    } catch (error) {
+      loggedError(error, `[${this.collectionName} Controller] getById API error`, {
+        id,
+        loggedUser,
+      });
+      next(error);
+    }
+  };
+
+  /**
+   * Get entity by email
+   * @param req - CustomRequest object
+   * @param res - Response object
+   * @param next - Next middleware function
+   * @returns JSON entity object
+   */
+  getByEmail = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { loggedUser } = req;
+    const { email } = req.params;
+    try {
+      logger.info(`[${this.collectionName} Controller] Fetching ${this.collectionName} by email`, {
+        email,
+        loggedUser,
+      });
+      const data = await this.userService.getByEmail(email);
+
+      res.json(createResponse({ data }));
+    } catch (error) {
+      loggedError(error, `[${this.collectionName} Controller] getByEmail API error`, {
+        email,
+        loggedUser,
+      });
+      next(error);
+    }
+  };
+
+  /**
+   * Find entities by query (pagination, sorting, filtering)
+   * @param req - CustomRequest object
+   * @param res - Response object
+   * @param next - Next middleware function
+   * @returns JSON result of the query
+   */
+  findByQuery = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { loggedUser } = req;
+    const { paginate, orderBy, filter } = req.body;
+    try {
+      const queryOptions = { paginate, orderBy, filter };
+      logger.info(`[${this.collectionName} Controller] Finding ${this.collectionName} by query`, {
+        queryOptions,
+        loggedUser,
+      });
+
+      const data = await this.userService.findByQuery(queryOptions);
+
+      res.json(createResponse({ data }));
+    } catch (error) {
+      loggedError(error, `[${this.collectionName} Controller] findByQuery API error`, {
+        loggedUser,
+      });
+      next(error);
+    }
+  };
 
   /**
    * Create a new entity

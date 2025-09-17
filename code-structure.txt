@@ -55,7 +55,7 @@ Directory Structure:
 │   │   ├── cors.ts
 │   │   ├── error-middleware.ts
 │   │   └── zod-validation.ts
-│   ├── respository/
+│   ├── repository/
 │   │   ├── base.repository.ts
 │   │   └── users.repository.ts
 │   ├── routes/

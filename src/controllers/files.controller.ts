@@ -13,6 +13,7 @@ import { Files } from "@prisma/client";
 import { prismaInstance } from "@/config/prisma/prisma";
 import _ from "lodash";
 import { loggedError } from "@/utils/utils";
+import { COLLECTION_NAMES } from "@/constants";
 
 const prisma = prismaInstance();
 const IGNORE_FIELDS = {};
@@ -22,8 +23,8 @@ export class FileController extends BaseController<Files, UploadFileDto, UpdateF
   public fileService: FileService;
 
   constructor() {
-    super(prisma.files, "Files", IGNORE_FIELDS);
-    this.collectionName = "Files";
+    super(prisma.files, COLLECTION_NAMES.files, IGNORE_FIELDS);
+    this.collectionName = COLLECTION_NAMES.files;
     this.fileService = new FileService(prisma.files, this.collectionName, IGNORE_FIELDS);
   }
 

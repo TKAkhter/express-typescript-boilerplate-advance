@@ -29,7 +29,7 @@ export const errorMiddleware = (
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _: NextFunction,
-): Response => {
+) => {
   const { message, ...details } = err;
   const isHttpError = err instanceof HttpError;
 
@@ -103,7 +103,7 @@ export const errorMiddleware = (
     }),
   });
 
-  return res.json(
+  res.json(
     createResponse({
       data: responsePayload,
       status: statusCode,

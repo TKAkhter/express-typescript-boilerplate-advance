@@ -6,8 +6,9 @@ import { StatusCodes } from "http-status-codes";
 import { logger } from "@/common/winston/winston";
 import { BaseService } from "@/services/base.services";
 import { PrismaClient, Users } from "@prisma/client";
-import { UsersRepository } from "@/respository/users.repository";
+import { UsersRepository } from "@/repository/users.repository";
 import { loggedError } from "@/utils/utils";
+import { FindByQueryDto, FindByQueryResult } from "@/schemas/find-by-query";
 
 const prisma = new PrismaClient();
 
@@ -21,6 +22,98 @@ export class UsersService extends BaseService<Users, CreateUsersDto, UpdateUsers
     this.collectionNameService = collectionName;
     this.usersRepository = new UsersRepository(model, collectionName, ignoreFields);
   }
+
+  /**
+   * Fetches all entities from the database.
+   * @returns Array of entities
+   */
+  getAll = async (): Promise<Users[]> => {
+    try {
+      logger.info(
+        `[${this.collectionNameService} Service] Fetching all ${this.collectionNameService}`,
+      );
+      const data = await this.usersRepository.getAll();
+      return data;
+    } catch (error) {
+      loggedError(error, `[${this.collectionNameService} Service] getAll service error`);
+      throw error;
+    }
+  };
+
+  /**
+   * Fetches a entity by their id.
+   * @param id - entity's unique identifier
+   * @returns entity data
+   */
+  getById = async (id: string): Promise<Users> => {
+    try {
+      logger.info(
+        `[${this.collectionNameService} Service] Fetching ${this.collectionNameService} with id: ${id}`,
+      );
+      const data = await this.usersRepository.getById(id);
+
+      if (!data) {
+        logger.warn(
+          `[${this.collectionNameService} Service] ${this.collectionNameService} with id ${id} not found`,
+        );
+        throw createHttpError(StatusCodes.BAD_REQUEST, `${this.collectionNameService} not found`, {
+          resource: this.collectionNameService,
+        });
+      }
+
+      return data;
+    } catch (error) {
+      loggedError(error, `[${this.collectionNameService} Service] getById service error`, { id });
+      throw error;
+    }
+  };
+
+  /**
+   * Fetches a entity by their email.
+   * @param email - entity's email
+   * @returns entity data or null if not found
+   */
+  getByEmail = async (email: string): Promise<Users | null> => {
+    try {
+      logger.info(
+        `[${this.collectionNameService} Service] Fetching ${this.collectionNameService} with email: ${email}`,
+      );
+      const data = await this.usersRepository.getByEmail(email);
+
+      if (!data) {
+        logger.warn(
+          `[${this.collectionNameService} Service] ${this.collectionNameService} with email ${email} not found`,
+        );
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      loggedError(error, `[${this.collectionNameService} Service] getByEmail service error`, {
+        email,
+      });
+      throw error;
+    }
+  };
+
+  /**
+   * Finds entities based on query parameters.
+   * @param options - Query parameters like pagination, sorting, and filtering
+   * @returns Paginated entity data
+   */
+  findByQuery = async (options: FindByQueryDto): Promise<FindByQueryResult<Users>> => {
+    try {
+      logger.info(
+        `[${this.collectionNameService} Service] Querying ${this.collectionNameService} with options: ${JSON.stringify(options)}`,
+      );
+      return await this.usersRepository.findByQuery(options);
+    } catch (error) {
+      loggedError(error, `[${this.collectionNameService} Service] findByQuery service error`, {
+        options,
+      });
+      throw error;
+    }
+  };
 
   /**
    * Creates a new entity.
